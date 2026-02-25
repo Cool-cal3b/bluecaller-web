@@ -11,6 +11,7 @@ export default function MainLayout({
       <div className={styles.sidebar}>
         <h2>BlueCaller</h2>
         <Link href="/admin">Admin Portal</Link>
+        <Link href="/profile">Profile</Link>
       </div>
 
       <div className={styles.pageContent}>
