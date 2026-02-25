@@ -1,0 +1,45 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 32px;
+  max-width: 600px;
+}
+
+.container h1 {
+  font-size: 48px;
+  font-weight: 600;
+  line-height: 56px;
+  letter-spacing: -2px;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.icon {
+  font-size: 72px;
+}
+
+.content p {
+  font-size: 18px;
+  line-height: 28px;
+  color: #666;
+  margin: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .container h1 {
+    color: #ededed;
+  }
+
+  .content p {
+    color: #999;
+  }
+}

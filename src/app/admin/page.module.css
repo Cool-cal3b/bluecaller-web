@@ -1,0 +1,27 @@
+.container {
+  max-width: 1200px;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  color: #1a1a1a;
+}
+
+.description {
+  font-size: 18px;
+  line-height: 28px;
+  color: #666;
+  margin: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .title {
+    color: #ededed;
+  }
+
+  .description {
+    color: #999;
+  }
+}
