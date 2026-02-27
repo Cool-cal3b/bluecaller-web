@@ -8,8 +8,14 @@ if (-not $COMMIT_HASH) {
 	exit 1
 }
 
+$buildArgs = Get-Content ".env.prod" | Where-Object { $_ -match "^\s*[^#].*=.*" } | ForEach-Object {
+	$key, $value = $_ -split "=", 2
+	"--build-arg `"$key=$value`""
+} | Join-String -Separator " "
+
 Write-Host "Building the Docker image..."
-docker build -t "${DOCKER_USERNAME}/${IMAGE_NAME}:${TAG}" -t "${DOCKER_USERNAME}/${IMAGE_NAME}:${COMMIT_HASH}" .
+$buildCmd = "docker build $buildArgs -t `"${DOCKER_USERNAME}/${IMAGE_NAME}:${TAG}`" -t `"${DOCKER_USERNAME}/${IMAGE_NAME}:${COMMIT_HASH}`" ."
+Invoke-Expression $buildCmd
 
 if ($LASTEXITCODE -ne 0) {
 	Write-Host "❌ Error: Docker build failed."
