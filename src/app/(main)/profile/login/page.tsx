@@ -2,16 +2,20 @@
 
 import { LoginPageService } from "@/services/page-services.ts/login-page-service";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { GoogleLogin } from "@react-oauth/google";
+import { GoogleOAuthProviderWrapper } from "@/components/google-oauth-provider";
 import styles from "./login.module.css";
 
 export default function LoginPage() {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [googleError, setGoogleError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   const loginPageServiceRef = useRef<LoginPageService>(new LoginPageService());
   const router = useRouter();
+
+  useEffect(() => { setMounted(true); }, []);
 
   if (loginPageServiceRef.current.isLoggedIn()) {
     router.push('/profile');
@@ -85,19 +89,25 @@ export default function LoginPage() {
           Sign in
         </button>
 
-        <div className={styles.divider}>
-          <span className={styles.dividerLine} />
-          <span className={styles.dividerText}>or</span>
-          <span className={styles.dividerLine} />
-        </div>
+        {mounted && (
+          <>
+            <div className={styles.divider}>
+              <span className={styles.dividerLine} />
+              <span className={styles.dividerText}>or</span>
+              <span className={styles.dividerLine} />
+            </div>
 
-        <div className={styles.googleWrapper}>
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => setGoogleError('Google sign-in failed')}
-            useOneTap={false}
-          />
-        </div>
+            <div className={styles.googleWrapper}>
+              <GoogleOAuthProviderWrapper>
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setGoogleError('Google sign-in failed')}
+                  useOneTap={false}
+                />
+              </GoogleOAuthProviderWrapper>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
