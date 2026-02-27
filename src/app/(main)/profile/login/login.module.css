@@ -1,0 +1,156 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  width: 100%;
+  max-width: 400px;
+  padding-top: 60px;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.logoMark {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background-color: var(--color-blue-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.logoMark svg {
+  width: 24px;
+  height: 24px;
+  fill: #ffffff;
+}
+
+.heading h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-blue-deep);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.heading p {
+  font-size: 14px;
+  color: var(--color-gray-dark);
+  margin: 0;
+}
+
+.card {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid var(--color-gray-lightest);
+  border-radius: 14px;
+  padding: 32px;
+  box-shadow: 0 2px 16px rgba(0, 59, 109, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-blue-deep);
+}
+
+.input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--color-gray-medium);
+  font-size: 14px;
+  color: var(--color-blue-deep);
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+}
+
+.input::placeholder {
+  color: var(--color-gray-medium);
+}
+
+.input:focus {
+  border-color: var(--color-blue-medium);
+  box-shadow: 0 0 0 3px rgba(102, 153, 204, 0.18);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background-color: var(--color-gray-lightest);
+}
+
+.dividerText {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-gray-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.loginButton {
+  width: 100%;
+  padding: 11px 20px;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--color-blue-deep);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  font-family: inherit;
+}
+
+.loginButton:hover {
+  background-color: #004d8f;
+}
+
+.googleWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.errorMessage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background-color: rgba(220, 53, 69, 0.06);
+  border: 1px solid rgba(220, 53, 69, 0.2);
+  font-size: 13px;
+  color: #c0392b;
+}
+
+.errorMessage svg {
+  width: 15px;
+  height: 15px;
+  fill: #c0392b;
+  flex-shrink: 0;
+}

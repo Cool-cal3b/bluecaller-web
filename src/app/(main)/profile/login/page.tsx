@@ -4,6 +4,7 @@ import { LoginPageService } from "@/services/page-services.ts/login-page-service
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
+import styles from "./login.module.css";
 
 export default function LoginPage() {
   const [username, setUsername] = useState<string>('');
@@ -37,21 +38,66 @@ export default function LoginPage() {
   };
 
   return (
-    <div>
-      <h1>Login</h1>
-      <div>
-        <div>Username</div>
-        <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
-        <div>Password</div>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button onClick={handleLogin}>Login</button>
+    <div className={styles.container}>
+      <div className={styles.heading}>
+        <div className={styles.logoMark}>
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.47 11.47 0 003.58.57 1 1 0 011 1V21a1 1 0 01-1 1A17 17 0 013 5a1 1 0 011-1h3.5a1 1 0 011 1 11.47 11.47 0 00.57 3.58 1 1 0 01-.25 1.01l-2.2 2.2z" />
+          </svg>
+        </div>
+        <h1>Sign in to BlueCaller</h1>
+        <p>Enter your credentials to continue</p>
+      </div>
 
-        <GoogleLogin
-          onSuccess={handleGoogleSuccess}
-          onError={() => setGoogleError('Google sign-in failed')}
-          useOneTap={false}
-        />
-        {googleError && <div>{googleError}</div>}
+      <div className={styles.card}>
+        {googleError && (
+          <div className={styles.errorMessage}>
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+            </svg>
+            {googleError}
+          </div>
+        )}
+
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>Username</label>
+          <input
+            className={styles.input}
+            type="text"
+            placeholder="Enter your username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+        </div>
+
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>Password</label>
+          <input
+            className={styles.input}
+            type="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+
+        <button className={styles.loginButton} onClick={handleLogin}>
+          Sign in
+        </button>
+
+        <div className={styles.divider}>
+          <span className={styles.dividerLine} />
+          <span className={styles.dividerText}>or</span>
+          <span className={styles.dividerLine} />
+        </div>
+
+        <div className={styles.googleWrapper}>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setGoogleError('Google sign-in failed')}
+            useOneTap={false}
+          />
+        </div>
       </div>
     </div>
   );
