@@ -1,27 +1,134 @@
 .container {
-  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  max-width: 900px;
+  color: #e2e8f0;
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid rgba(102, 153, 204, 0.1);
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-blue-medium);
+}
+
+.eyebrowDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-blue-medium);
+  box-shadow: 0 0 6px var(--color-blue-medium);
 }
 
 .title {
-  font-size: 36px;
-  font-weight: 600;
-  margin: 0 0 16px 0;
-  color: #1a1a1a;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #e2e8f0;
+  margin: 0;
+  line-height: 1.2;
 }
 
 .description {
-  font-size: 18px;
-  line-height: 28px;
-  color: #666;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(226, 232, 240, 0.5);
   margin: 0;
+  max-width: 520px;
 }
 
-@media (prefers-color-scheme: dark) {
-  .title {
-    color: #ededed;
-  }
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.35);
+  margin-bottom: 14px;
+}
 
-  .description {
-    color: #999;
-  }
+.toolGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.toolCard {
+  background-color: rgba(12, 18, 32, 0.9);
+  border: 1px solid rgba(102, 153, 204, 0.12);
+  border-radius: 12px;
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+  text-decoration: none;
+}
+
+.toolCard:hover {
+  border-color: rgba(102, 153, 204, 0.35);
+  background-color: rgba(102, 153, 204, 0.06);
+  box-shadow: 0 0 20px rgba(102, 153, 204, 0.08);
+}
+
+.toolCardIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgba(0, 59, 109, 0.6) 0%, rgba(102, 153, 204, 0.25) 100%);
+  border: 1px solid rgba(102, 153, 204, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolCardIcon svg {
+  width: 18px;
+  height: 18px;
+  fill: var(--color-blue-medium);
+}
+
+.toolCardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toolCardTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.toolCardDesc {
+  font-size: 12.5px;
+  color: rgba(226, 232, 240, 0.45);
+  line-height: 1.5;
+}
+
+.toolCardBadge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background-color: rgba(102, 153, 204, 0.12);
+  color: var(--color-blue-medium);
+  border: 1px solid rgba(102, 153, 204, 0.2);
+  width: fit-content;
 }
