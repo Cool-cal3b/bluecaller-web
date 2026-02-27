@@ -1,14 +1,14 @@
 "use client";
 
 import { LoginPageService } from "@/services/page-services.ts/login-page-service";
-import { UserInfo } from "@/services/shared-services/user-info-storage";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import styles from "./profile.module.css";
+import { useUserInfo } from "@/context/user-info-context";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const { userInfo, clearUserInfo, setUserInfo } = useUserInfo();
   const loginPageServiceRef = useRef<LoginPageService>(new LoginPageService());
   if (!loginPageServiceRef.current.isLoggedIn()) {
     router.push('/profile/login');
@@ -17,11 +17,14 @@ export default function ProfilePage() {
   const handleLogout = () => {
     loginPageServiceRef.current.logout();
     router.push('/profile/login');
+    clearUserInfo();
   };
 
   useEffect(() => {
     if (loginPageServiceRef.current.isLoggedIn()) {
-      setUserInfo(loginPageServiceRef.current.getUserInfo());
+      const userInfo = loginPageServiceRef.current.getUserInfo();
+      if (!userInfo) return;
+      setUserInfo(userInfo);
     }
   }, [loginPageServiceRef.current.isLoggedIn()]);
 
