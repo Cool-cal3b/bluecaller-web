@@ -3,43 +3,116 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 32px;
-  max-width: 600px;
+  gap: 40px;
+  max-width: 560px;
+  padding-top: 60px;
 }
 
-.container h1 {
-  font-size: 48px;
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background-color: rgba(0, 59, 109, 0.08);
+  border: 1px solid rgba(0, 59, 109, 0.14);
+  font-size: 12px;
   font-weight: 600;
-  line-height: 56px;
-  letter-spacing: -2px;
-  margin: 0;
-  color: #1a1a1a;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-blue-deep);
 }
 
-.content {
+.badgeDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--color-blue-medium);
+}
+
+.heading {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 16px;
 }
 
-.icon {
-  font-size: 72px;
-}
-
-.content p {
-  font-size: 18px;
-  line-height: 28px;
-  color: #666;
+.heading h1 {
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--color-blue-deep);
   margin: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  .container h1 {
-    color: #ededed;
-  }
+.heading p {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--color-gray-dark);
+  margin: 0;
+  max-width: 420px;
+}
 
-  .content p {
-    color: #999;
-  }
+.divider {
+  width: 48px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-blue-deep), var(--color-blue-medium));
+}
+
+.card {
+  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid var(--color-gray-lightest);
+  border-radius: 14px;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 2px 12px rgba(0, 59, 109, 0.06);
+}
+
+.cardRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.cardIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: rgba(0, 59, 109, 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cardIcon svg {
+  width: 17px;
+  height: 17px;
+  fill: var(--color-blue-deep);
+  opacity: 0.8;
+}
+
+.cardText {
+  font-size: 14px;
+  color: var(--color-gray-dark);
+  line-height: 1.5;
+}
+
+.cardText strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-blue-deep);
+  margin-bottom: 2px;
+}
+
+.cardSeparator {
+  height: 1px;
+  background-color: var(--color-gray-lightest);
+  margin: 4px 0;
 }
