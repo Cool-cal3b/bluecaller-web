@@ -8,6 +8,7 @@ export class UserInfoStorageService {
 
     public getUserInfo(): UserInfo | null {
         if (this.userInfo) return this.userInfo;
+        if (typeof window === "undefined") return null;
 
         const userInfoJSON = localStorage.getItem(this.USER_INFO_KEY);
         if (!userInfoJSON) return null;
@@ -18,11 +19,14 @@ export class UserInfoStorageService {
 
     public setUserInfo(userInfo: UserInfo): void {
         this.userInfo = userInfo;
+        if (typeof window === "undefined") return;
+
         localStorage.setItem(this.USER_INFO_KEY, JSON.stringify(userInfo));
     }
 
     public clearUserInfo(): void {
         this.userInfo = null;
+        if (typeof window === "undefined") return;
         localStorage.removeItem(this.USER_INFO_KEY);
     }
 }
