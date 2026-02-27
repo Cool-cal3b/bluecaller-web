@@ -2,16 +2,10 @@
 
 import Link from "next/link";
 import styles from "./layout.module.css";
-import { useRef } from "react";
-import { UserInfoStorageService } from "@/services/shared-services/user-info-storage";
+import { UserInfoProvider, useUserInfo } from "@/context/user-info-context";
 
-export default function MainLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const userInfoHelperRef = useRef<UserInfoStorageService>(new UserInfoStorageService());
-  const userInfo = userInfoHelperRef.current.getUserInfo();
+function MainLayoutInner({ children }: { children: React.ReactNode }) {
+  const { userInfo } = useUserInfo();
 
   const getInitials = () => {
     if (!userInfo?.firstName) return null;
@@ -75,5 +69,13 @@ export default function MainLayout({
         {children}
       </div>
     </div>
+  );
+}
+
+export default function MainLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <UserInfoProvider>
+      <MainLayoutInner>{children}</MainLayoutInner>
+    </UserInfoProvider>
   );
 }

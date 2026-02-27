@@ -8,10 +8,10 @@ if (-not $COMMIT_HASH) {
 	exit 1
 }
 
-$buildArgs = Get-Content ".env.prod" | Where-Object { $_ -match "^\s*[^#].*=.*" } | ForEach-Object {
+$buildArgs = (Get-Content ".env.prod" | Where-Object { $_ -match "^\s*[^#].*=.*" } | ForEach-Object {
 	$key, $value = $_ -split "=", 2
 	"--build-arg `"$key=$value`""
-} | Join-String -Separator " "
+}) -join " "
 
 Write-Host "Building the Docker image..."
 $buildCmd = "docker build $buildArgs -t `"${DOCKER_USERNAME}/${IMAGE_NAME}:${TAG}`" -t `"${DOCKER_USERNAME}/${IMAGE_NAME}:${COMMIT_HASH}`" ."

@@ -1,11 +1,32 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import styles from "./layout.module.css";
+import { UserInfoStorageService } from "@/services/shared-services/user-info-storage";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const userInfo = new UserInfoStorageService().getUserInfo();
+    if (!userInfo?.isAdmin) {
+      router.replace("/");
+    } else {
+      setIsAuthorized(true);
+    }
+  }, [router]);
+
+  if (isAuthorized !== true) {
+    return null;
+  }
+
   return (
     <div className={styles.layoutAdmin}>
       <aside className={styles.sidebar}>

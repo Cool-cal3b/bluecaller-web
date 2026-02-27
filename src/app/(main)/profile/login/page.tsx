@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState, useEffect } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { GoogleOAuthProviderWrapper } from "@/components/google-oauth-provider";
+import { useUserInfo } from "@/context/user-info-context";
 import styles from "./login.module.css";
 
 export default function LoginPage() {
@@ -14,6 +15,7 @@ export default function LoginPage() {
   const [mounted, setMounted] = useState(false);
   const loginPageServiceRef = useRef<LoginPageService>(new LoginPageService());
   const router = useRouter();
+  const { setUserInfo } = useUserInfo();
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -22,7 +24,8 @@ export default function LoginPage() {
   }
 
   const handleLogin = async () => {
-    await loginPageServiceRef.current.login(username, password);
+    const userInfo = await loginPageServiceRef.current.login(username, password);
+    setUserInfo(userInfo);
     router.push('/profile');
   };
 
@@ -34,7 +37,8 @@ export default function LoginPage() {
     }
     setGoogleError(null);
     try {
-      await loginPageServiceRef.current.loginWithGoogle(idToken);
+      const userInfo = await loginPageServiceRef.current.loginWithGoogle(idToken);
+      setUserInfo(userInfo);
       router.push('/profile');
     } catch (err) {
       setGoogleError(err instanceof Error ? err.message : 'Google login failed');

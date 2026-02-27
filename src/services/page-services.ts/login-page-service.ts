@@ -11,7 +11,7 @@ export class LoginPageService {
         this.userInfoStorageService = new UserInfoStorageService();
     }
 
-    public async login(username: string, password: string): Promise<void> {
+    public async login(username: string, password: string): Promise<UserInfo> {
         this.apiService = await getAPIService();
 
         const response = await this.apiService.post<LoginResponse>('/auth/login', { username, password });
@@ -39,17 +39,19 @@ export class LoginPageService {
             throw new Error('Failed to get is admin');
         }
 
-        this.userInfoStorageService.setUserInfo({
+        const userInfo: UserInfo = {
             username: userInfoResponse.username,
             firstName: userInfoResponse.first_name,
             lastName: userInfoResponse.last_name,
             email: userInfoResponse.email,
             bearer: response.bearer || '',
             isAdmin: isAdminResponse.isAdmin,
-        });
+        };
+        this.userInfoStorageService.setUserInfo(userInfo);
+        return userInfo;
     }
 
-    public async loginWithGoogle(idToken: string): Promise<void> {
+    public async loginWithGoogle(idToken: string): Promise<UserInfo> {
         this.apiService = await getAPIService();
         if (!this.apiService) throw new Error('Failed to get API service');
 
@@ -78,14 +80,16 @@ export class LoginPageService {
             throw new Error('Failed to get is admin');
         }
 
-        this.userInfoStorageService.setUserInfo({
+        const userInfo: UserInfo = {
             username: userInfoResponse.username,
             firstName: userInfoResponse.first_name,
             lastName: userInfoResponse.last_name,
             email: userInfoResponse.email,
             bearer: response.bearer || '',
             isAdmin: isAdminResponse.isAdmin,
-        });
+        };
+        this.userInfoStorageService.setUserInfo(userInfo);
+        return userInfo;
     }
 
     public logout(): void {
