@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import styles from "./layout.module.css";
 import { UserInfoStorageService } from "@/services/shared-services/user-info-storage";
@@ -12,19 +12,28 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const pathname = usePathname();
+  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
 
   useEffect(() => {
     const userInfo = new UserInfoStorageService().getUserInfo();
-    if (!userInfo?.isAdmin) {
-      router.replace("/");
-    } else {
-      setIsAuthorized(true);
-    }
+    setIsAuthorized(userInfo?.isAdmin ?? false);
   }, [router]);
 
   if (isAuthorized !== true) {
-    return null;
+    return (
+      <div className={styles.layoutAdmin}>
+        <div className={styles.pageContent}>
+          <div className={styles.backLinkContainer}>
+            <Link href="/" className={styles.backLink}>
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" /></svg> Back to main site
+            </Link>
+          </div>
+          <h1>Unauthorized</h1>
+          <p>You are not authorized to access this page.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -45,7 +54,7 @@ export default function AdminLayout({
         <span className={styles.sectionLabel}>Navigation</span>
 
         <nav className={styles.nav}>
-          <Link href="/admin" className={styles.navLink}>
+          <Link href="/admin" className={`${styles.navLink}${pathname === "/admin" ? ` ${styles.navLinkActive}` : ""}`}>
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
             </svg>

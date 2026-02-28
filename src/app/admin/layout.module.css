@@ -126,6 +126,15 @@
   color: var(--admin-text-primary);
 }
 
+.navLinkActive {
+  background-color: var(--admin-accent-dim);
+  color: var(--admin-text-primary);
+}
+
+.navLinkActive svg {
+  opacity: 1;
+}
+
 .navLink svg {
   width: 16px;
   height: 16px;
@@ -166,6 +175,10 @@
   fill: currentColor;
   opacity: 0.6;
   flex-shrink: 0;
+}
+
+.backLinkContainer {
+  width: fit-content;
 }
 
 .pageContent {

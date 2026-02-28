@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import styles from "./layout.module.css";
 import { UserInfoProvider, useUserInfo } from "@/context/user-info-context";
 
 function MainLayoutInner({ children }: { children: React.ReactNode }) {
   const { userInfo } = useUserInfo();
+  const pathname = usePathname();
 
   const getInitials = () => {
     if (!userInfo?.firstName) return null;
@@ -33,14 +35,14 @@ function MainLayoutInner({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className={styles.nav}>
-          <Link href="/" className={styles.navLink}>
+          <Link href="/" className={`${styles.navLink}${pathname === "/" ? ` ${styles.navLinkActive}` : ""}`}>
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
             </svg>
             Home
           </Link>
           {userInfo?.isAdmin && (
-            <Link href="/admin" className={styles.navLink}>
+            <Link href="/admin" className={`${styles.navLink}${pathname.startsWith("/admin") ? ` ${styles.navLinkActive}` : ""}`}>
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 2a5 5 0 100 10A5 5 0 0012 2zm0 12c-5.33 0-8 2.67-8 4v2h16v-2c0-1.33-2.67-4-8-4z" />
               </svg>
@@ -50,7 +52,7 @@ function MainLayoutInner({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className={styles.sidebarFooter}>
-          <Link href="/profile" className={styles.profileLink}>
+          <Link href="/profile" className={`${styles.profileLink}${pathname.startsWith("/profile") ? ` ${styles.profileLinkActive}` : ""}`}>
             {initials ? (
               <div className={styles.avatar}>{initials}</div>
             ) : (
