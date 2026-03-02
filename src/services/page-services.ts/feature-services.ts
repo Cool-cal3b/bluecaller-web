@@ -1,0 +1,58 @@
+import { BlueCallerMeeting, GetAllMeetingsResponse, GetMeetingResponse } from "@/responses/feature-responses";
+import { CreateFounderMeetingItemRequest, CreateFounderMeetingRequest } from "@/requests/feature-requests";
+import { GeneralResponse } from "@/responses/shared-responses";
+import { getAPIService } from "../shared-services/api-service";
+
+class FeatureService {
+    // NOTHING FOR NOW
+}
+
+class MeetingService {
+    constructor() {}
+
+    public async getMeetings(): Promise<BlueCallerMeeting[]> {
+        const apiService = await getAPIService();
+        const response = await apiService.get<GetAllMeetingsResponse>('/bc-features/founder-meetings');
+        if (!response) return [];
+        return response.meetings.map(meeting => new BlueCallerMeeting(meeting));
+    }
+
+    public async getMeeting(id: number): Promise<BlueCallerMeeting> {
+        const apiService = await getAPIService();
+        const response = await apiService.get<GetMeetingResponse>(`/bc-features/founder-meetings/${id}`);
+        if (!response) throw new Error(`Failed to get meeting with id ${id}`);
+        return new BlueCallerMeeting(response);
+    }
+
+    public async createMeeting(createMeetingRequest: CreateFounderMeetingRequest): Promise<void> {
+        const apiService = await getAPIService();
+        const response = await apiService.post<GeneralResponse>(`/bc-features/founder-meetings`, createMeetingRequest);
+        if (!response?.success) throw new Error(response?.message);
+    }
+
+    public async updateMeeting(id: number, updateMeetingRequest: CreateFounderMeetingRequest): Promise<void> {
+        const apiService = await getAPIService();
+        const response = await apiService.post<GeneralResponse>(`/bc-features/founder-meetings/${id}`, updateMeetingRequest);
+        if (!response?.success) throw new Error(response?.message);
+    }
+
+    public async createMeetingItem(meetingId: number, createMeetingItemRequest: CreateFounderMeetingItemRequest): Promise<void> {
+        const apiService = await getAPIService();
+        const response = await apiService.post<GeneralResponse>(`/bc-features/meeting-items`, createMeetingItemRequest);
+        if (!response?.success) throw new Error(response?.message);
+    }
+
+    public async updateMeetingItem(meetingItemId: number, updateMeetingItemRequest: CreateFounderMeetingItemRequest): Promise<void> {
+        const apiService = await getAPIService();
+        const response = await apiService.post<GeneralResponse>(`/bc-features/meeting-items/${meetingItemId}`, updateMeetingItemRequest);
+        if (!response?.success) throw new Error(response?.message);
+    }
+
+    public async setIfMeetingItemIsCompleted(meetingItemId: number, isCompleted: boolean): Promise<void> {
+        const apiService = await getAPIService();
+        const response = await apiService.post<GeneralResponse>(`/bc-features/meeting-items/${meetingItemId}/complete:${isCompleted}`, null);
+        if (!response?.success) throw new Error(response?.message);
+    }
+}
+
+export { FeatureService, MeetingService };

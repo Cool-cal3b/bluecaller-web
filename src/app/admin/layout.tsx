@@ -60,6 +60,14 @@ export default function AdminLayout({
             </svg>
             Dashboard
           </Link>
+
+          <Link href="/admin/features" className={`${styles.navLink}${pathname.startsWith("/admin/features") ? ` ${styles.navLinkActive}` : ""}`}>
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              {/* HAMMER SVG */}
+              <path d="M12 2a5 5 0 100 10A5 5 0 0012 2zm0 12c-5.33 0-8 2.67-8 4v2h16v-2c0-1.33-2.67-4-8-4z" />
+            </svg>
+            Features
+          </Link>
         </nav>
 
         <div className={styles.sidebarFooter}>
