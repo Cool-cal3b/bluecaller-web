@@ -23,6 +23,10 @@ interface GetMeetingResponse {
     meetingItems: GetMeetingItemResponse[];
 }
 
+interface GetMeetingItemsResponse {
+    meetingItems: GetMeetingItemResponse[];
+}
+
 interface GetMeetingItemResponse {
     id: number;
     itemName: string;
@@ -58,5 +62,5 @@ class BlueCallerMeeting {
     }
 }
 
-export type { GetFeaturesResponse, Feature, GetAllMeetingsResponse, GetMeetingResponse, GetMeetingItemResponse };
+export type { GetFeaturesResponse, Feature, GetAllMeetingsResponse, GetMeetingResponse, GetMeetingItemResponse, GetMeetingItemsResponse };
 export { BlueCallerMeeting, MeetingItemType, FeaturePriority };

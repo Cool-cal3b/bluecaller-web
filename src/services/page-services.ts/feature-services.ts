@@ -1,4 +1,4 @@
-import { BlueCallerMeeting, Feature, GetAllMeetingsResponse, GetFeaturesResponse, GetMeetingResponse } from "@/responses/feature-responses";
+import { BlueCallerMeeting, Feature, GetAllMeetingsResponse, GetFeaturesResponse, GetMeetingItemResponse, GetMeetingResponse, GetMeetingItemsResponse } from "@/responses/feature-responses";
 import { CreateFounderMeetingItemRequest, CreateFounderMeetingRequest, CreateFeatureRequest } from "@/requests/feature-requests";
 import { GeneralResponse } from "@/responses/shared-responses";
 import { getAPIService } from "../shared-services/api-service";
@@ -30,6 +30,43 @@ class FeatureService {
         const apiService = await getAPIService();
         const response = await apiService.post<GeneralResponse>(`/bc-features/features/${id}`, updateFeatureRequest);
         if (!response?.success) throw new Error(response?.message);
+    }
+
+    public async createActionItem(itemName: string, itemText: string, featureId: number): Promise<void> {
+        const apiService = await getAPIService();
+        const response = await apiService.post<GeneralResponse>('/bc-features/meeting-items', {
+            itemName,
+            itemText,
+            type: 'ACTION',
+            featureId,
+        });
+        if (!response?.success) throw new Error(response?.message);
+    }
+
+    public async addActionItemToFeature(meetingItemId: number, featureId: number): Promise<void> {
+        const apiService = await getAPIService();
+        const response = await apiService.post<GeneralResponse>(`/bc-features/meeting-items/${meetingItemId}/feature/${featureId}`, null);
+        if (!response?.success) throw new Error(response?.message);
+    }
+
+    public async removeActionItemFromFeature(meetingItemId: number, featureId: number): Promise<void> {
+        const apiService = await getAPIService();
+        const response = await apiService.delete<GeneralResponse>(`/bc-features/meeting-items/${meetingItemId}/feature/${featureId}`);
+        if (!response?.success) throw new Error(response?.message);
+    }
+
+    public async getActionItemsForFeature(featureId: number): Promise<GetMeetingItemsResponse> {
+        const apiService = await getAPIService();
+        const response = await apiService.get<GetMeetingItemsResponse>(`/bc-features/features/${featureId}/action-items`);
+        if (!response) return { meetingItems: [] };
+        return response;
+    }
+
+    public async getAllActionItemsNotAssigned(): Promise<GetMeetingItemsResponse> {
+        const apiService = await getAPIService();
+        const response = await apiService.get<GetMeetingItemsResponse>(`/bc-features/meeting-items/not-assigned`);
+        if (!response) return { meetingItems: [] };
+        return response;
     }
 }
 
