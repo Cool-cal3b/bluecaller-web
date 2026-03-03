@@ -238,7 +238,7 @@ export default function FeaturePage() {
                         ) : (
                             <div className={styles.itemList}>
                                 {actionItems.map((item) => (
-                                    <div key={item.id} className={styles.item}>
+                                    <Link key={item.id} href={`/admin/features/all-action-items/${item.id}`} className={styles.item}>
                                         <span className={styles.itemDot} />
                                         <div className={styles.itemBody}>
                                             <span className={styles.itemName}>{item.itemName}</span>
@@ -253,7 +253,7 @@ export default function FeaturePage() {
                                                 <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
                                             </svg>
                                         </button>
-                                    </div>
+                                    </Link>
                                 ))}
                             </div>
                         )}

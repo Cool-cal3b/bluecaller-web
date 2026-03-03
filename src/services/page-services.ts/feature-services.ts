@@ -92,6 +92,13 @@ class MeetingService {
         if (!response?.success) throw new Error(response?.message);
     }
 
+    public async getActionItem(itemId: number): Promise<GetMeetingItemResponse> {
+        const apiService = await getAPIService();
+        const response = await apiService.get<GetMeetingItemResponse>(`/bc-features/meeting-items/${itemId}`);
+        if (!response) throw new Error(`Failed to get action item with id ${itemId}`);
+        return response;
+    }
+
     public async createMeetingItem(meetingId: number, createMeetingItemRequest: CreateFounderMeetingItemRequest): Promise<void> {
         const apiService = await getAPIService();
         const response = await apiService.post<GeneralResponse>(`/bc-features/meeting-items`, createMeetingItemRequest);
@@ -101,6 +108,12 @@ class MeetingService {
     public async updateMeetingItem(meetingItemId: number, updateMeetingItemRequest: CreateFounderMeetingItemRequest): Promise<void> {
         const apiService = await getAPIService();
         const response = await apiService.post<GeneralResponse>(`/bc-features/meeting-items/${meetingItemId}`, updateMeetingItemRequest);
+        if (!response?.success) throw new Error(response?.message);
+    }
+
+    public async deleteMeetingItem(meetingItemId: number): Promise<void> {
+        const apiService = await getAPIService();
+        const response = await apiService.delete<GeneralResponse>(`/bc-features/meeting-items/${meetingItemId}`);
         if (!response?.success) throw new Error(response?.message);
     }
 
