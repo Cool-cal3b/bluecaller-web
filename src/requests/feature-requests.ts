@@ -1,4 +1,4 @@
-import { MeetingItemType } from "@/responses/feature-responses";
+import { FeaturePriority, MeetingItemType } from "@/responses/feature-responses";
 
 interface CreateFounderMeetingRequest {
     date: string;
@@ -13,4 +13,12 @@ interface CreateFounderMeetingItemRequest {
     meetingId?: number;
 }
 
-export type { CreateFounderMeetingRequest, CreateFounderMeetingItemRequest };
+interface CreateFeatureRequest {
+    featureName: string;
+    featureDescription: string;
+    priority: FeaturePriority;
+    yearGoal: number;
+    quarterGoal: number;
+}
+
+export type { CreateFounderMeetingRequest, CreateFounderMeetingItemRequest, CreateFeatureRequest };

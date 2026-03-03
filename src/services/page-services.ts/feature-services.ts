@@ -1,10 +1,36 @@
-import { BlueCallerMeeting, GetAllMeetingsResponse, GetMeetingResponse } from "@/responses/feature-responses";
-import { CreateFounderMeetingItemRequest, CreateFounderMeetingRequest } from "@/requests/feature-requests";
+import { BlueCallerMeeting, Feature, GetAllMeetingsResponse, GetFeaturesResponse, GetMeetingResponse } from "@/responses/feature-responses";
+import { CreateFounderMeetingItemRequest, CreateFounderMeetingRequest, CreateFeatureRequest } from "@/requests/feature-requests";
 import { GeneralResponse } from "@/responses/shared-responses";
 import { getAPIService } from "../shared-services/api-service";
 
 class FeatureService {
-    // NOTHING FOR NOW
+    constructor() {}
+
+    public async getFeatures(): Promise<Feature[]> {
+        const apiService = await getAPIService();
+        const response = await apiService.get<GetFeaturesResponse>('/bc-features/features');
+        if (!response) return [];
+        return response.features;
+    }
+
+    public async getFeature(id: number): Promise<Feature> {
+        const apiService = await getAPIService();
+        const response = await apiService.get<Feature>(`/bc-features/features/${id}`);
+        if (!response) throw new Error(`Failed to get feature with id ${id}`);
+        return response;
+    }
+
+    public async createFeature(createFeatureRequest: CreateFeatureRequest): Promise<void> {
+        const apiService = await getAPIService();
+        const response = await apiService.post<GeneralResponse>('/bc-features/features', createFeatureRequest);
+        if (!response?.success) throw new Error(response?.message);
+    }
+
+    public async updateFeature(id: number, updateFeatureRequest: CreateFeatureRequest): Promise<void> {
+        const apiService = await getAPIService();
+        const response = await apiService.post<GeneralResponse>(`/bc-features/features/${id}`, updateFeatureRequest);
+        if (!response?.success) throw new Error(response?.message);
+    }
 }
 
 class MeetingService {

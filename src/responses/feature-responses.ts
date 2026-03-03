@@ -37,6 +37,13 @@ enum MeetingItemType {
     ACTION = "ACTION",
 }
 
+enum FeaturePriority {
+    HIGH = 1,
+    MEDIUM = 2,
+    LOW = 3,
+    BACKLOG = 4,
+}
+
 class BlueCallerMeeting {
     public date: Date;
     public id: number;
@@ -52,4 +59,4 @@ class BlueCallerMeeting {
 }
 
 export type { GetFeaturesResponse, Feature, GetAllMeetingsResponse, GetMeetingResponse, GetMeetingItemResponse };
-export { BlueCallerMeeting, MeetingItemType };
+export { BlueCallerMeeting, MeetingItemType, FeaturePriority };
