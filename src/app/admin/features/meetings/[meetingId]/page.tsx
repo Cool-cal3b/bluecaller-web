@@ -4,7 +4,7 @@ import { MeetingService, FeatureService } from "@/services/page-services.ts/feat
 import { useEffect, useRef, useState } from "react";
 import { Feature, GetMeetingItemResponse, MeetingItemType } from "@/responses/feature-responses";
 import styles from "./page.module.css";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
 function toLocalDateInputValue(date: Date): string {
@@ -23,6 +23,7 @@ type ModalItem = Omit<GetMeetingItemResponse, "id"> & { id: number | null };
 
 export default function MeetingPage() {
     const params: { meetingId: string } = useParams();
+    const router = useRouter();
     const getMeetingId = () => parseInt(params.meetingId);
     const meetingServiceRef = useRef(new MeetingService());
     const featureServiceRef = useRef(new FeatureService());
@@ -34,6 +35,9 @@ export default function MeetingPage() {
     const [notes, setNotes] = useState<string>("");
     const [completingId, setCompletingId] = useState<number | null>(null);
     const [refreshCounter, setRefreshCounter] = useState(0);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const deleteOverlayRef = useRef<HTMLDivElement>(null);
 
     // View/edit modal (clicking an existing item)
     const [modalItem, setModalItem] = useState<ModalItem | null>(null);
@@ -83,10 +87,11 @@ export default function MeetingPage() {
     };
 
     const handleDateChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newDate = fromLocalDateInputValue(e.target.value);
-        setMeetingDate(newDate);
+        const [y, m, d] = e.target.value.split("-").map(Number);
+        const utcNoon = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+        setMeetingDate(utcNoon);
         await meetingServiceRef.current.updateMeeting(getMeetingId(), {
-            date: newDate.toISOString(),
+            date: utcNoon.toISOString(),
             notes,
         });
     };
@@ -227,6 +232,20 @@ export default function MeetingPage() {
         ? meetingDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
         : "Meeting";
 
+    const handleDeleteMeeting = async () => {
+        setIsDeleting(true);
+        try {
+            await meetingServiceRef.current.deleteMeeting(getMeetingId());
+            router.push("/admin/features/meetings");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const handleDeleteOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.target === deleteOverlayRef.current) setShowDeleteConfirm(false);
+    };
+
     const handleUnassignItem = async (e: React.MouseEvent, itemId: number) => {
         e.stopPropagation();
         await meetingServiceRef.current.removeItemFromMeeting(itemId, getMeetingId());
@@ -274,9 +293,21 @@ export default function MeetingPage() {
                     <span className={styles.eyebrowDot} />
                     Founder's Meeting
                 </div>
-                <h1 className={styles.title}>
-                    {loading ? "Loading…" : displayDate}
-                </h1>
+                <div className={styles.titleRow}>
+                    <h1 className={styles.title}>
+                        {loading ? "Loading…" : displayDate}
+                    </h1>
+                    <button
+                        className={styles.deleteButton}
+                        onClick={() => setShowDeleteConfirm(true)}
+                        title="Delete meeting"
+                    >
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                            <path d="M2 3.5h9M5 3.5V2.5h3v1M4.5 3.5v6.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5V3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        Delete
+                    </button>
+                </div>
             </div>
 
             <Link href="/admin/features/meetings" className={styles.backLink}>
@@ -502,6 +533,28 @@ export default function MeetingPage() {
                                 </div>
                             </>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* Delete confirmation modal */}
+            {showDeleteConfirm && (
+                <div className={styles.modalOverlay} ref={deleteOverlayRef} onClick={handleDeleteOverlayClick}>
+                    <div className={styles.modal}>
+                        <div className={styles.modalHeader}>
+                            <h2 className={styles.modalTitle}>Delete Meeting</h2>
+                        </div>
+                        <p className={styles.deleteConfirmText}>
+                            Are you sure you want to delete <strong>{displayDate}</strong>? This cannot be undone.
+                        </p>
+                        <div className={styles.modalActions}>
+                            <button className={styles.cancelButton} onClick={() => setShowDeleteConfirm(false)} disabled={isDeleting}>
+                                Cancel
+                            </button>
+                            <button className={styles.deleteConfirmButton} onClick={handleDeleteMeeting} disabled={isDeleting}>
+                                {isDeleting ? "Deleting…" : "Delete Meeting"}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

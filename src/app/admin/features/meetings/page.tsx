@@ -85,7 +85,7 @@ export default function MeetingsPage() {
     const upcomingMeetings = useMemo(() => {
         return meetings
             .filter((m) => startOfDay(m.date) >= today)
-            .sort((a, b) => a.date.getTime() - b.date.getTime());
+            .sort((a, b) => b.date.getTime() - a.date.getTime());
     }, [meetings, today]);
 
     const lastThreeMonthsMeetings = useMemo(() => {
@@ -126,8 +126,9 @@ export default function MeetingsPage() {
         if (!newMeetingDate) return;
         setIsCreating(true);
         try {
-            const date = fromLocalDateInputValue(newMeetingDate);
-            await meetingServiceRef.current.createMeeting({ date: date.toISOString(), notes: "" });
+            const [y, m, d] = newMeetingDate.split("-").map(Number);
+            const utcNoon = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+            await meetingServiceRef.current.createMeeting({ date: utcNoon.toISOString(), notes: "" });
             closeModal();
             setRefreshCounter((c) => c + 1);
         } finally {

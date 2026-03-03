@@ -33,6 +33,12 @@
   box-shadow: 0 0 6px var(--color-blue-medium);
 }
 
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .title {
   font-size: 30px;
   font-weight: 700;
@@ -40,6 +46,28 @@
   color: #e2e8f0;
   margin: 0;
   line-height: 1.2;
+}
+
+.deleteButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: rgba(239, 68, 68, 0.5);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background-color 0.15s;
+  flex-shrink: 0;
+}
+
+.deleteButton:hover {
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #f87171;
+  background-color: rgba(239, 68, 68, 0.06);
 }
 
 /* Back link */
@@ -814,4 +842,39 @@
   font-size: 12.5px;
   font-weight: 500;
   color: var(--color-blue-medium);
+}
+
+.deleteConfirmText {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(226, 232, 240, 0.65);
+  margin: 0;
+}
+
+.deleteConfirmText strong {
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.deleteConfirmButton {
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+}
+
+.deleteConfirmButton:hover:not(:disabled) {
+  border-color: rgba(239, 68, 68, 0.6);
+  background-color: rgba(239, 68, 68, 0.18);
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.15);
+}
+
+.deleteConfirmButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }

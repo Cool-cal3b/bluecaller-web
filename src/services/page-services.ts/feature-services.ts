@@ -80,6 +80,12 @@ class MeetingService {
         return new BlueCallerMeeting(response);
     }
 
+    public async deleteMeeting(meetingId: number): Promise<void> {
+        const apiService = await getAPIService();
+        const response = await apiService.delete<GeneralResponse>(`/bc-features/founder-meetings/${meetingId}`);
+        if (!response?.success) throw new Error(response?.message);
+    }
+
     public async createMeeting(createMeetingRequest: CreateFounderMeetingRequest): Promise<void> {
         const apiService = await getAPIService();
         const response = await apiService.post<GeneralResponse>(`/bc-features/founder-meetings`, createMeetingRequest);

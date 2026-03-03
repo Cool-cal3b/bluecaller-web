@@ -55,7 +55,10 @@ class BlueCallerMeeting {
     public meetingItems: GetMeetingItemResponse[];
 
     constructor(meetingResponse: GetMeetingResponse) {
-        this.date = new Date(meetingResponse.date);
+        const raw = meetingResponse.date;
+        const datePart = raw.includes("T") ? raw.split("T")[0] : raw;
+        const [y, m, d] = datePart.split("-").map(Number);
+        this.date = new Date(y, m - 1, d, 12, 0, 0);
         this.id = meetingResponse.id;
         this.notes = meetingResponse.notes;
         this.meetingItems = meetingResponse.meetingItems;
