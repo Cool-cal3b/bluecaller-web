@@ -32,6 +32,7 @@ export default function MeetingPage() {
     const [meetingItems, setMeetingItems] = useState<GetMeetingItemResponse[]>([]);
     const [notes, setNotes] = useState<string>("");
     const [modalItem, setModalItem] = useState<ModalItem | null>(null);
+    const [isEditMode, setIsEditMode] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [completingId, setCompletingId] = useState<number | null>(null);
     const [refreshCounter, setRefreshCounter] = useState(0);
@@ -81,16 +82,29 @@ export default function MeetingPage() {
 
     const openNewItemModal = (type: MeetingItemType) => {
         setModalItem({ id: null, itemName: "", itemText: "", isCompleted: false, type });
+        setIsEditMode(true);
     };
 
-    const openEditItemModal = (item: GetMeetingItemResponse) => {
+    const openViewItemModal = (item: GetMeetingItemResponse) => {
         setModalItem({ ...item });
+        setIsEditMode(false);
     };
 
-    const closeModal = () => setModalItem(null);
+    const closeModal = () => {
+        setModalItem(null);
+        setIsEditMode(false);
+    };
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === overlayRef.current) closeModal();
+    };
+
+    const handleCancelEdit = () => {
+        if (modalItem?.id) {
+            setIsEditMode(false);
+        } else {
+            closeModal();
+        }
     };
 
     const handleSaveMeetingItem = async () => {
@@ -111,11 +125,12 @@ export default function MeetingPage() {
                         item.id === modalItem.id ? { ...item, ...modalItem, id: modalItem.id! } : item
                     )
                 );
+                setIsEditMode(false);
             } else {
                 await meetingService.createMeetingItem(getMeetingId(), payload);
                 setRefreshCounter((c) => c + 1);
+                closeModal();
             }
-            closeModal();
         } finally {
             setIsSaving(false);
         }
@@ -134,7 +149,7 @@ export default function MeetingPage() {
                 <li
                     key={item.id}
                     className={`${styles.item} ${item.isCompleted ? styles.itemCompleted : ""}`}
-                    onClick={() => openEditItemModal(item)}
+                    onClick={() => openViewItemModal(item)}
                 >
                     <span className={`${styles.itemDot} ${isAction ? styles.itemDotAction : ""}`} />
                     <span className={styles.itemName}>{item.itemName}</span>
@@ -239,57 +254,95 @@ export default function MeetingPage() {
             {modalItem && (
                 <div className={styles.modalOverlay} ref={overlayRef} onClick={handleOverlayClick}>
                     <div className={styles.modal}>
-                        <div className={styles.modalHeader}>
-                            <h2 className={styles.modalTitle}>
-                                {modalItem.id ? "Edit Item" : "New Item"}
-                            </h2>
-                            <select
-                                className={styles.modalTypeSelect}
-                                value={modalItem.type}
-                                onChange={(e) => setModalItem({ ...modalItem, type: e.target.value as MeetingItemType })}
-                            >
-                                <option value={MeetingItemType.AGENDA}>Agenda Item</option>
-                                <option value={MeetingItemType.ACTION}>Action Item</option>
-                            </select>
-                        </div>
 
-                        <div className={styles.modalField}>
-                            <label className={styles.modalLabel} htmlFor="item-name">Name</label>
-                            <input
-                                id="item-name"
-                                className={styles.modalInput}
-                                type="text"
-                                value={modalItem.itemName ?? ""}
-                                onChange={(e) => setModalItem({ ...modalItem, itemName: e.target.value })}
-                                placeholder="Short title for this item…"
-                                autoFocus
-                            />
-                        </div>
+                        {isEditMode ? (
+                            <>
+                                <div className={styles.modalHeader}>
+                                    <h2 className={styles.modalTitle}>
+                                        {modalItem.id ? "Edit Item" : "New Item"}
+                                    </h2>
+                                    <select
+                                        className={styles.modalTypeSelect}
+                                        value={modalItem.type}
+                                        onChange={(e) => setModalItem({ ...modalItem, type: e.target.value as MeetingItemType })}
+                                    >
+                                        <option value={MeetingItemType.AGENDA}>Agenda Item</option>
+                                        <option value={MeetingItemType.ACTION}>Action Item</option>
+                                    </select>
+                                </div>
 
-                        <div className={styles.modalField}>
-                            <label className={styles.modalLabel} htmlFor="item-text">Description</label>
-                            <textarea
-                                id="item-text"
-                                className={styles.modalTextarea}
-                                value={modalItem.itemText ?? ""}
-                                onChange={(e) => setModalItem({ ...modalItem, itemText: e.target.value })}
-                                placeholder="Additional details or context…"
-                                rows={3}
-                            />
-                        </div>
+                                <div className={styles.modalField}>
+                                    <label className={styles.modalLabel} htmlFor="item-name">Name</label>
+                                    <input
+                                        id="item-name"
+                                        className={styles.modalInput}
+                                        type="text"
+                                        value={modalItem.itemName ?? ""}
+                                        onChange={(e) => setModalItem({ ...modalItem, itemName: e.target.value })}
+                                        placeholder="Short title for this item…"
+                                        autoFocus
+                                    />
+                                </div>
 
-                        <div className={styles.modalActions}>
-                            <button className={styles.cancelButton} onClick={closeModal} disabled={isSaving}>
-                                Cancel
-                            </button>
-                            <button
-                                className={styles.confirmButton}
-                                onClick={handleSaveMeetingItem}
-                                disabled={isSaving || !modalItem.itemName?.trim()}
-                            >
-                                {isSaving ? "Saving…" : modalItem.id ? "Save Changes" : "Add Item"}
-                            </button>
-                        </div>
+                                <div className={styles.modalField}>
+                                    <label className={styles.modalLabel} htmlFor="item-text">Description</label>
+                                    <textarea
+                                        id="item-text"
+                                        className={styles.modalTextarea}
+                                        value={modalItem.itemText ?? ""}
+                                        onChange={(e) => setModalItem({ ...modalItem, itemText: e.target.value })}
+                                        placeholder="Additional details or context…"
+                                        rows={3}
+                                    />
+                                </div>
+
+                                <div className={styles.modalActions}>
+                                    <button className={styles.cancelButton} onClick={handleCancelEdit} disabled={isSaving}>
+                                        Cancel
+                                    </button>
+                                    <button
+                                        className={styles.confirmButton}
+                                        onClick={handleSaveMeetingItem}
+                                        disabled={isSaving || !modalItem.itemName?.trim()}
+                                    >
+                                        {isSaving ? "Saving…" : modalItem.id ? "Save Changes" : "Add Item"}
+                                    </button>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className={styles.modalViewHeader}>
+                                    <span className={`${styles.modalTypeBadge} ${modalItem.type === MeetingItemType.ACTION ? styles.modalTypeBadgeAction : ""}`}>
+                                        {modalItem.type === MeetingItemType.AGENDA ? "Agenda Item" : "Action Item"}
+                                    </span>
+                                    {modalItem.isCompleted && (
+                                        <span className={styles.modalCompletedBadge}>Completed</span>
+                                    )}
+                                </div>
+
+                                <div className={styles.modalViewBody}>
+                                    <h3 className={styles.modalViewName}>{modalItem.itemName}</h3>
+                                    {modalItem.itemText ? (
+                                        <p className={styles.modalViewText}>{modalItem.itemText}</p>
+                                    ) : (
+                                        <p className={styles.modalViewTextEmpty}>No description.</p>
+                                    )}
+                                </div>
+
+                                <div className={styles.modalActions}>
+                                    <button className={styles.cancelButton} onClick={closeModal}>
+                                        Close
+                                    </button>
+                                    <button className={styles.editButton} onClick={() => setIsEditMode(true)}>
+                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                            <path d="M8.5 1.5a1.414 1.414 0 0 1 2 2L4 10H2v-2L8.5 1.5z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                        Edit
+                                    </button>
+                                </div>
+                            </>
+                        )}
+
                     </div>
                 </div>
             )}

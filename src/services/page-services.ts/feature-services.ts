@@ -50,7 +50,9 @@ class MeetingService {
 
     public async setIfMeetingItemIsCompleted(meetingItemId: number, isCompleted: boolean): Promise<void> {
         const apiService = await getAPIService();
-        const response = await apiService.post<GeneralResponse>(`/bc-features/meeting-items/${meetingItemId}/complete:${isCompleted}`, null);
+        const url = `/bc-features/meeting-items/${meetingItemId}/complete/${isCompleted}`;
+        
+        const response = await apiService.post<GeneralResponse>(url, null);
         if (!response?.success) throw new Error(response?.message);
     }
 }
