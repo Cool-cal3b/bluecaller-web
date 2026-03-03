@@ -1,13 +1,11 @@
 "use client";
 
-import { MeetingService } from "@/services/page-services.ts/feature-services";
+import { MeetingService, FeatureService } from "@/services/page-services.ts/feature-services";
 import { useEffect, useRef, useState } from "react";
-import { GetMeetingItemResponse, MeetingItemType } from "@/responses/feature-responses";
+import { Feature, GetMeetingItemResponse, MeetingItemType } from "@/responses/feature-responses";
 import styles from "./page.module.css";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-
-const meetingService = new MeetingService();
 
 function toLocalDateInputValue(date: Date): string {
     const y = date.getFullYear();
@@ -26,23 +24,50 @@ type ModalItem = Omit<GetMeetingItemResponse, "id"> & { id: number | null };
 export default function MeetingPage() {
     const params: { meetingId: string } = useParams();
     const getMeetingId = () => parseInt(params.meetingId);
+    const meetingServiceRef = useRef(new MeetingService());
+    const featureServiceRef = useRef(new FeatureService());
 
     const [loading, setLoading] = useState(true);
+    const [allFeatures, setAllFeatures] = useState<Feature[]>([]);
     const [meetingDate, setMeetingDate] = useState<Date | null>(null);
     const [meetingItems, setMeetingItems] = useState<GetMeetingItemResponse[]>([]);
     const [notes, setNotes] = useState<string>("");
+    const [completingId, setCompletingId] = useState<number | null>(null);
+    const [refreshCounter, setRefreshCounter] = useState(0);
+
+    // View/edit modal (clicking an existing item)
     const [modalItem, setModalItem] = useState<ModalItem | null>(null);
     const [isEditMode, setIsEditMode] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [completingId, setCompletingId] = useState<number | null>(null);
-    const [refreshCounter, setRefreshCounter] = useState(0);
-    const overlayRef = useRef<HTMLDivElement>(null);
+    const [editFeatureSearch, setEditFeatureSearch] = useState("");
+    const [editFeaturePickerOpen, setEditFeaturePickerOpen] = useState(false);
+    const viewOverlayRef = useRef<HTMLDivElement>(null);
+
+    // Add modal (the + button)
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [addModalTab, setAddModalTab] = useState<"new" | "existing">("new");
+    const [addModalDefaultType, setAddModalDefaultType] = useState<MeetingItemType>(MeetingItemType.ACTION);
+    const [newItemName, setNewItemName] = useState("");
+    const [newItemText, setNewItemText] = useState("");
+    const [newItemType, setNewItemType] = useState<MeetingItemType>(MeetingItemType.ACTION);
+    const [newItemFeatureId, setNewItemFeatureId] = useState<number | null>(null);
+    const [newFeatureSearch, setNewFeatureSearch] = useState("");
+    const [newFeaturePickerOpen, setNewFeaturePickerOpen] = useState(false);
+    const [isCreating, setIsCreating] = useState(false);
+    const [openItems, setOpenItems] = useState<GetMeetingItemResponse[]>([]);
+    const [openItemsToShow, setOpenItemsToShow] = useState<GetMeetingItemResponse[]>([]);
+    const [existingSearchTerm, setExistingSearchTerm] = useState("");
+    const addOverlayRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        featureServiceRef.current.getFeatures().then(setAllFeatures);
+    }, []);
 
     useEffect(() => {
         const id = getMeetingId();
         if (isNaN(id)) return;
         setLoading(true);
-        meetingService.getMeeting(id).then((meeting) => {
+        meetingServiceRef.current.getMeeting(id).then((meeting) => {
             setMeetingDate(meeting.date);
             setMeetingItems(meeting.meetingItems);
             setNotes(meeting.notes);
@@ -51,7 +76,7 @@ export default function MeetingPage() {
 
     const handleNotesBlur = async () => {
         if (!meetingDate) return;
-        await meetingService.updateMeeting(getMeetingId(), {
+        await meetingServiceRef.current.updateMeeting(getMeetingId(), {
             date: meetingDate.toISOString(),
             notes,
         });
@@ -60,7 +85,7 @@ export default function MeetingPage() {
     const handleDateChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const newDate = fromLocalDateInputValue(e.target.value);
         setMeetingDate(newDate);
-        await meetingService.updateMeeting(getMeetingId(), {
+        await meetingServiceRef.current.updateMeeting(getMeetingId(), {
             date: newDate.toISOString(),
             notes,
         });
@@ -71,7 +96,7 @@ export default function MeetingPage() {
         setCompletingId(item.id);
         try {
             const next = !item.isCompleted;
-            await meetingService.setIfMeetingItemIsCompleted(item.id, next);
+            await meetingServiceRef.current.setIfMeetingItemIsCompleted(item.id, next);
             setMeetingItems((prev) =>
                 prev.map((i) => (i.id === item.id ? { ...i, isCompleted: next } : i))
             );
@@ -80,59 +105,118 @@ export default function MeetingPage() {
         }
     };
 
-    const openNewItemModal = (type: MeetingItemType) => {
-        setModalItem({ id: null, itemName: "", itemText: "", isCompleted: false, type });
-        setIsEditMode(true);
-    };
-
+    // View/edit modal
     const openViewItemModal = (item: GetMeetingItemResponse) => {
         setModalItem({ ...item });
+        setEditFeatureSearch("");
+        setEditFeaturePickerOpen(false);
         setIsEditMode(false);
     };
 
-    const closeModal = () => {
+    const closeViewModal = () => {
         setModalItem(null);
         setIsEditMode(false);
+        setEditFeaturePickerOpen(false);
     };
 
-    const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (e.target === overlayRef.current) closeModal();
+    const handleViewOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.target === viewOverlayRef.current) closeViewModal();
     };
 
     const handleCancelEdit = () => {
         if (modalItem?.id) {
             setIsEditMode(false);
         } else {
-            closeModal();
+            closeViewModal();
         }
     };
 
     const handleSaveMeetingItem = async () => {
-        if (!modalItem) return;
+        if (!modalItem?.id) return;
         setIsSaving(true);
         try {
-            const payload = {
+            await meetingServiceRef.current.updateMeetingItem(modalItem.id, {
                 meetingId: getMeetingId(),
                 itemName: modalItem.itemName ?? "",
                 itemText: modalItem.itemText ?? "",
                 type: modalItem.type ?? MeetingItemType.AGENDA,
-            };
+            });
 
-            if (modalItem.id) {
-                await meetingService.updateMeetingItem(modalItem.id, payload);
-                setMeetingItems((prev) =>
-                    prev.map((item) =>
-                        item.id === modalItem.id ? { ...item, ...modalItem, id: modalItem.id! } : item
-                    )
-                );
-                setIsEditMode(false);
-            } else {
-                await meetingService.createMeetingItem(getMeetingId(), payload);
-                setRefreshCounter((c) => c + 1);
-                closeModal();
+            const originalFeatureId = meetingItems.find((i) => i.id === modalItem.id)?.featureId ?? null;
+            if (modalItem.featureId !== originalFeatureId) {
+                if (originalFeatureId) {
+                    await featureServiceRef.current.removeActionItemFromFeature(modalItem.id, originalFeatureId);
+                }
+                if (modalItem.featureId) {
+                    await featureServiceRef.current.addActionItemToFeature(modalItem.id, modalItem.featureId);
+                }
             }
+
+            setMeetingItems((prev) =>
+                prev.map((item) =>
+                    item.id === modalItem.id ? { ...item, ...modalItem, id: modalItem.id! } : item
+                )
+            );
+            setIsEditMode(false);
+            setEditFeaturePickerOpen(false);
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    // Add modal
+    const openAddModal = (defaultType: MeetingItemType) => {
+        setAddModalDefaultType(defaultType);
+        setAddModalTab("new");
+        setNewItemName("");
+        setNewItemText("");
+        setNewItemType(defaultType);
+        setNewItemFeatureId(null);
+        setNewFeatureSearch("");
+        setNewFeaturePickerOpen(false);
+        setExistingSearchTerm("");
+        meetingServiceRef.current.getAllOpenActionItems().then((res) => {
+            setOpenItems(res.meetingItems);
+            setOpenItemsToShow(res.meetingItems.filter((item) => !meetingItems.some((i) => i.id === item.id)).slice(0, 20));
+        });
+        setShowAddModal(true);
+    };
+
+    const closeAddModal = () => setShowAddModal(false);
+
+    const handleAddOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.target === addOverlayRef.current) closeAddModal();
+    };
+
+    const handleExistingSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const term = e.target.value;
+        setExistingSearchTerm(term);
+        setOpenItemsToShow(
+            openItems.filter((i) => i.itemName.toLowerCase().includes(term.toLowerCase())).slice(0, 20)
+        );
+    };
+
+    const handleAddExistingItem = async (itemId: number) => {
+        await meetingServiceRef.current.addItemToMeeting(itemId, getMeetingId());
+        closeAddModal();
+        setRefreshCounter((c) => c + 1);
+    };
+
+    const handleCreateNewItem = async () => {
+        if (!newItemName.trim()) return;
+        setIsCreating(true);
+        try {
+            await meetingServiceRef.current.createMeetingItem(getMeetingId(), {
+                meetingId: getMeetingId(),
+                itemName: newItemName,
+                itemText: newItemText,
+                type: newItemType,
+                featureId: newItemFeatureId ?? undefined,
+            });
+            closeAddModal();
+            setRefreshCounter((c) => c + 1);
+        } finally {
+            setIsCreating(false);
         }
     };
 
@@ -142,6 +226,12 @@ export default function MeetingPage() {
     const displayDate = meetingDate
         ? meetingDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
         : "Meeting";
+
+    const handleUnassignItem = async (e: React.MouseEvent, itemId: number) => {
+        e.stopPropagation();
+        await meetingServiceRef.current.removeItemFromMeeting(itemId, getMeetingId());
+        setRefreshCounter((c) => c + 1);
+    };
 
     const renderItemList = (items: GetMeetingItemResponse[], isAction: boolean) => (
         <ul className={styles.itemList}>
@@ -161,6 +251,15 @@ export default function MeetingPage() {
                     >
                         <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                             <path d="M1.5 5l2.5 2.5L8.5 2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </button>
+                    <button
+                        className={styles.unassignButton}
+                        onClick={(e) => handleUnassignItem(e, item.id)}
+                        title="Remove from meeting"
+                    >
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                            <path d="M1 1l8 8M9 1L1 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
                         </svg>
                     </button>
                 </li>
@@ -221,7 +320,7 @@ export default function MeetingPage() {
                         <div className={styles.section}>
                             <div className={styles.sectionHeader}>
                                 <div className={styles.sectionTitle}>Agenda Items</div>
-                                <button className={styles.addItemButton} onClick={() => openNewItemModal(MeetingItemType.AGENDA)}>
+                                <button className={styles.addItemButton} onClick={() => openAddModal(MeetingItemType.AGENDA)}>
                                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                                         <path d="M5 1v8M1 5h8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
                                     </svg>
@@ -236,7 +335,7 @@ export default function MeetingPage() {
                         <div className={styles.section}>
                             <div className={styles.sectionHeader}>
                                 <div className={styles.sectionTitle}>Action Items</div>
-                                <button className={styles.addItemButton} onClick={() => openNewItemModal(MeetingItemType.ACTION)}>
+                                <button className={styles.addItemButton} onClick={() => openAddModal(MeetingItemType.ACTION)}>
                                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                                         <path d="M5 1v8M1 5h8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
                                     </svg>
@@ -251,16 +350,14 @@ export default function MeetingPage() {
                 </div>
             )}
 
+            {/* View / edit modal */}
             {modalItem && (
-                <div className={styles.modalOverlay} ref={overlayRef} onClick={handleOverlayClick}>
+                <div className={styles.modalOverlay} ref={viewOverlayRef} onClick={handleViewOverlayClick}>
                     <div className={styles.modal}>
-
                         {isEditMode ? (
                             <>
                                 <div className={styles.modalHeader}>
-                                    <h2 className={styles.modalTitle}>
-                                        {modalItem.id ? "Edit Item" : "New Item"}
-                                    </h2>
+                                    <h2 className={styles.modalTitle}>Edit Item</h2>
                                     <select
                                         className={styles.modalTypeSelect}
                                         value={modalItem.type}
@@ -272,9 +369,9 @@ export default function MeetingPage() {
                                 </div>
 
                                 <div className={styles.modalField}>
-                                    <label className={styles.modalLabel} htmlFor="item-name">Name</label>
+                                    <label className={styles.modalLabel} htmlFor="edit-item-name">Name</label>
                                     <input
-                                        id="item-name"
+                                        id="edit-item-name"
                                         className={styles.modalInput}
                                         type="text"
                                         value={modalItem.itemName ?? ""}
@@ -285,9 +382,9 @@ export default function MeetingPage() {
                                 </div>
 
                                 <div className={styles.modalField}>
-                                    <label className={styles.modalLabel} htmlFor="item-text">Description</label>
+                                    <label className={styles.modalLabel} htmlFor="edit-item-text">Description</label>
                                     <textarea
-                                        id="item-text"
+                                        id="edit-item-text"
                                         className={styles.modalTextarea}
                                         value={modalItem.itemText ?? ""}
                                         onChange={(e) => setModalItem({ ...modalItem, itemText: e.target.value })}
@@ -295,6 +392,61 @@ export default function MeetingPage() {
                                         rows={3}
                                     />
                                 </div>
+
+                                {modalItem.type === MeetingItemType.ACTION && (
+                                    <div className={styles.modalField}>
+                                        <label className={styles.modalLabel}>Feature</label>
+                                        {modalItem.featureId ? (
+                                            <div className={styles.featureSelected}>
+                                                <span className={styles.featureSelectedName}>
+                                                    {allFeatures.find((f) => f.id === modalItem.featureId)?.name ?? "Unknown feature"}
+                                                </span>
+                                                <button
+                                                    className={styles.featureClearButton}
+                                                    onClick={() => setModalItem({ ...modalItem, featureId: undefined })}
+                                                >
+                                                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                                        <path d="M1 1l8 8M9 1L1 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className={styles.featurePicker}>
+                                                <input
+                                                    className={styles.modalInput}
+                                                    type="text"
+                                                    placeholder="Search features…"
+                                                    value={editFeatureSearch}
+                                                    onChange={(e) => setEditFeatureSearch(e.target.value)}
+                                                    onFocus={() => setEditFeaturePickerOpen(true)}
+                                                />
+                                                {editFeaturePickerOpen && (
+                                                    <div className={styles.featureDropdown}>
+                                                        {allFeatures
+                                                            .filter((f) => f.name.toLowerCase().includes(editFeatureSearch.toLowerCase()))
+                                                            .slice(0, 10)
+                                                            .map((f) => (
+                                                                <button
+                                                                    key={f.id}
+                                                                    className={styles.featureDropdownItem}
+                                                                    onClick={() => {
+                                                                        setModalItem({ ...modalItem, featureId: f.id });
+                                                                        setEditFeatureSearch("");
+                                                                        setEditFeaturePickerOpen(false);
+                                                                    }}
+                                                                >
+                                                                    {f.name}
+                                                                </button>
+                                                            ))}
+                                                        {allFeatures.filter((f) => f.name.toLowerCase().includes(editFeatureSearch.toLowerCase())).length === 0 && (
+                                                            <p className={styles.featureDropdownEmpty}>No features found.</p>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
                                 <div className={styles.modalActions}>
                                     <button className={styles.cancelButton} onClick={handleCancelEdit} disabled={isSaving}>
@@ -305,7 +457,7 @@ export default function MeetingPage() {
                                         onClick={handleSaveMeetingItem}
                                         disabled={isSaving || !modalItem.itemName?.trim()}
                                     >
-                                        {isSaving ? "Saving…" : modalItem.id ? "Save Changes" : "Add Item"}
+                                        {isSaving ? "Saving…" : "Save Changes"}
                                     </button>
                                 </div>
                             </>
@@ -327,10 +479,18 @@ export default function MeetingPage() {
                                     ) : (
                                         <p className={styles.modalViewTextEmpty}>No description.</p>
                                     )}
+                                    {modalItem.featureId && (
+                                        <div className={styles.modalViewFeature}>
+                                            <span className={styles.modalViewFeatureLabel}>Feature</span>
+                                            <span className={styles.modalViewFeatureName}>
+                                                {allFeatures.find((f) => f.id === modalItem.featureId)?.name ?? "Unknown feature"}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className={styles.modalActions}>
-                                    <button className={styles.cancelButton} onClick={closeModal}>
+                                    <button className={styles.cancelButton} onClick={closeViewModal}>
                                         Close
                                     </button>
                                     <button className={styles.editButton} onClick={() => setIsEditMode(true)}>
@@ -342,7 +502,178 @@ export default function MeetingPage() {
                                 </div>
                             </>
                         )}
+                    </div>
+                </div>
+            )}
 
+            {/* Add item modal */}
+            {showAddModal && (
+                <div className={styles.modalOverlay} ref={addOverlayRef} onClick={handleAddOverlayClick}>
+                    <div className={styles.modal}>
+                        <div className={styles.modalHeader}>
+                            <h2 className={styles.modalTitle}>Add Item</h2>
+                        </div>
+
+                        <div className={styles.modalTabs}>
+                            <button
+                                className={`${styles.modalTab} ${addModalTab === "new" ? styles.modalTabActive : ""}`}
+                                onClick={() => setAddModalTab("new")}
+                            >
+                                Create New
+                            </button>
+                            <button
+                                className={`${styles.modalTab} ${addModalTab === "existing" ? styles.modalTabActive : ""}`}
+                                onClick={() => setAddModalTab("existing")}
+                            >
+                                Add Existing
+                            </button>
+                        </div>
+
+                        {addModalTab === "new" ? (
+                            <>
+                                <div className={styles.modalField}>
+                                    <label className={styles.modalLabel} htmlFor="new-item-type">Type</label>
+                                    <select
+                                        id="new-item-type"
+                                        className={styles.modalTypeSelect}
+                                        value={newItemType}
+                                        onChange={(e) => setNewItemType(e.target.value as MeetingItemType)}
+                                    >
+                                        <option value={MeetingItemType.AGENDA}>Agenda Item</option>
+                                        <option value={MeetingItemType.ACTION}>Action Item</option>
+                                    </select>
+                                </div>
+
+                                <div className={styles.modalField}>
+                                    <label className={styles.modalLabel} htmlFor="new-item-name">Name</label>
+                                    <input
+                                        id="new-item-name"
+                                        className={styles.modalInput}
+                                        type="text"
+                                        value={newItemName}
+                                        onChange={(e) => setNewItemName(e.target.value)}
+                                        placeholder="Short title for this item…"
+                                        autoFocus
+                                    />
+                                </div>
+
+                                <div className={styles.modalField}>
+                                    <label className={styles.modalLabel} htmlFor="new-item-text">Description</label>
+                                    <textarea
+                                        id="new-item-text"
+                                        className={styles.modalTextarea}
+                                        value={newItemText}
+                                        onChange={(e) => setNewItemText(e.target.value)}
+                                        placeholder="Additional details or context…"
+                                        rows={3}
+                                    />
+                                </div>
+
+                                {newItemType === MeetingItemType.ACTION && (
+                                    <div className={styles.modalField}>
+                                        <label className={styles.modalLabel}>Feature</label>
+                                        {newItemFeatureId ? (
+                                            <div className={styles.featureSelected}>
+                                                <span className={styles.featureSelectedName}>
+                                                    {allFeatures.find((f) => f.id === newItemFeatureId)?.name ?? "Unknown feature"}
+                                                </span>
+                                                <button
+                                                    className={styles.featureClearButton}
+                                                    onClick={() => setNewItemFeatureId(null)}
+                                                >
+                                                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                                        <path d="M1 1l8 8M9 1L1 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className={styles.featurePicker}>
+                                                <input
+                                                    className={styles.modalInput}
+                                                    type="text"
+                                                    placeholder="Search features…"
+                                                    value={newFeatureSearch}
+                                                    onChange={(e) => setNewFeatureSearch(e.target.value)}
+                                                    onFocus={() => setNewFeaturePickerOpen(true)}
+                                                />
+                                                {newFeaturePickerOpen && (
+                                                    <div className={styles.featureDropdown}>
+                                                        {allFeatures
+                                                            .filter((f) => f.name.toLowerCase().includes(newFeatureSearch.toLowerCase()))
+                                                            .slice(0, 10)
+                                                            .map((f) => (
+                                                                <button
+                                                                    key={f.id}
+                                                                    className={styles.featureDropdownItem}
+                                                                    onClick={() => {
+                                                                        setNewItemFeatureId(f.id);
+                                                                        setNewFeatureSearch("");
+                                                                        setNewFeaturePickerOpen(false);
+                                                                    }}
+                                                                >
+                                                                    {f.name}
+                                                                </button>
+                                                            ))}
+                                                        {allFeatures.filter((f) => f.name.toLowerCase().includes(newFeatureSearch.toLowerCase())).length === 0 && (
+                                                            <p className={styles.featureDropdownEmpty}>No features found.</p>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                <div className={styles.modalActions}>
+                                    <button className={styles.cancelButton} onClick={closeAddModal} disabled={isCreating}>
+                                        Cancel
+                                    </button>
+                                    <button
+                                        className={styles.confirmButton}
+                                        onClick={handleCreateNewItem}
+                                        disabled={isCreating || !newItemName.trim()}
+                                    >
+                                        {isCreating ? "Creating…" : "Add Item"}
+                                    </button>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className={styles.modalField}>
+                                    <label className={styles.modalLabel} htmlFor="existing-search">Search</label>
+                                    <input
+                                        id="existing-search"
+                                        className={styles.modalInput}
+                                        type="text"
+                                        placeholder="Filter by name…"
+                                        value={existingSearchTerm}
+                                        onChange={handleExistingSearch}
+                                        autoFocus
+                                    />
+                                </div>
+
+                                {openItemsToShow.length === 0 ? (
+                                    <p className={styles.modalEmpty}>No open action items found.</p>
+                                ) : (
+                                    <div className={styles.modalList}>
+                                        {openItemsToShow.map((item) => (
+                                            <button
+                                                key={item.id}
+                                                className={styles.modalItem}
+                                                onClick={() => handleAddExistingItem(item.id)}
+                                            >
+                                                <span className={styles.modalItemName}>{item.itemName}</span>
+                                                {item.itemText && <span className={styles.modalItemText}>{item.itemText}</span>}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <div className={styles.modalActions}>
+                                    <button className={styles.cancelButton} onClick={closeAddModal}>Cancel</button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

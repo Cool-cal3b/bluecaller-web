@@ -5,13 +5,14 @@ import styles from "./page.module.css";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { FeatureService } from "@/services/page-services.ts/feature-services";
+import { FeatureService, MeetingService } from "@/services/page-services.ts/feature-services";
 
 export default function FeaturePage() {
     const params: { featureId: string } = useParams();
     const getFeatureId = () => parseInt(params.featureId);
 
     const featureServiceRef = useRef(new FeatureService());
+    const meetingServiceRef = useRef(new MeetingService());
 
     const [feature, setFeature] = useState<Feature | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -43,7 +44,7 @@ export default function FeaturePage() {
         };
 
         const fetchActionItemsNotAssignedForModal = async () => {
-            const actionItemsNotAssignedForModalResponse = await featureServiceRef.current.getAllActionItemsNotAssigned();
+            const actionItemsNotAssignedForModalResponse = await meetingServiceRef.current.getAllActionItemsNotAssigned();
             if (!actionItemsNotAssignedForModalResponse) return;
             setModalActionItems(actionItemsNotAssignedForModalResponse.meetingItems);
             setModalActionItemsToShow(actionItemsNotAssignedForModalResponse.meetingItems.slice(0, 20));

@@ -287,6 +287,28 @@
   color: rgba(226, 100, 100, 0.8);
 }
 
+.unassignButton {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  background: transparent;
+  color: rgba(226, 232, 240, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+  padding: 0;
+}
+
+.unassignButton:hover {
+  border-color: rgba(239, 68, 68, 0.3);
+  background-color: rgba(239, 68, 68, 0.08);
+  color: #f87171;
+}
+
 .emptyState {
   font-size: 13px;
   color: rgba(226, 232, 240, 0.3);
@@ -595,4 +617,201 @@
 .editButton:hover {
   border-color: rgba(102, 153, 204, 0.6);
   box-shadow: 0 0 16px rgba(102, 153, 204, 0.15);
+}
+
+.modalTabs {
+  display: flex;
+  gap: 2px;
+  background-color: rgba(6, 10, 22, 0.6);
+  border: 1px solid rgba(102, 153, 204, 0.12);
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.modalTab {
+  flex: 1;
+  padding: 7px 12px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  color: rgba(226, 232, 240, 0.45);
+  cursor: pointer;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.modalTab:hover {
+  color: rgba(226, 232, 240, 0.75);
+}
+
+.modalTabActive {
+  background-color: rgba(102, 153, 204, 0.14);
+  color: var(--color-blue-medium);
+  font-weight: 600;
+}
+
+.modalList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid rgba(102, 153, 204, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.modalItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 11px 14px;
+  border: none;
+  border-bottom: 1px solid rgba(102, 153, 204, 0.06);
+  background-color: rgba(6, 10, 22, 0.5);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.modalItem:last-child {
+  border-bottom: none;
+}
+
+.modalItem:hover {
+  background-color: rgba(102, 153, 204, 0.07);
+}
+
+.modalItemName {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.modalItemText {
+  font-size: 12px;
+  color: rgba(226, 232, 240, 0.4);
+  line-height: 1.4;
+}
+
+.modalEmpty {
+  font-size: 13px;
+  color: rgba(226, 232, 240, 0.3);
+  margin: 0;
+  padding: 8px 0;
+}
+
+/* Feature picker */
+
+.featurePicker {
+  position: relative;
+}
+
+.featureDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background-color: rgba(10, 16, 30, 0.98);
+  border: 1px solid rgba(102, 153, 204, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 10;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.featureDropdownItem {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(102, 153, 204, 0.06);
+  color: #e2e8f0;
+  font-size: 13.5px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.featureDropdownItem:last-child {
+  border-bottom: none;
+}
+
+.featureDropdownItem:hover {
+  background-color: rgba(102, 153, 204, 0.08);
+}
+
+.featureDropdownEmpty {
+  font-size: 12.5px;
+  color: rgba(226, 232, 240, 0.3);
+  padding: 10px 14px;
+  margin: 0;
+}
+
+.featureSelected {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  background-color: rgba(102, 153, 204, 0.08);
+  border: 1px solid rgba(102, 153, 204, 0.2);
+  border-radius: 10px;
+}
+
+.featureSelectedName {
+  flex: 1;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--color-blue-medium);
+}
+
+.featureClearButton {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: rgba(226, 232, 240, 0.35);
+  cursor: pointer;
+  transition: color 0.15s;
+  padding: 0;
+}
+
+.featureClearButton:hover {
+  color: #f87171;
+}
+
+/* Feature in view mode */
+
+.modalViewFeature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 7px 10px;
+  background-color: rgba(102, 153, 204, 0.06);
+  border: 1px solid rgba(102, 153, 204, 0.14);
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.modalViewFeatureLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.35);
+}
+
+.modalViewFeatureName {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--color-blue-medium);
 }

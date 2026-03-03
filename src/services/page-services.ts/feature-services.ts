@@ -61,13 +61,6 @@ class FeatureService {
         if (!response) return { meetingItems: [] };
         return response;
     }
-
-    public async getAllActionItemsNotAssigned(): Promise<GetMeetingItemsResponse> {
-        const apiService = await getAPIService();
-        const response = await apiService.get<GetMeetingItemsResponse>(`/bc-features/meeting-items/not-assigned`);
-        if (!response) return { meetingItems: [] };
-        return response;
-    }
 }
 
 class MeetingService {
@@ -117,6 +110,32 @@ class MeetingService {
         
         const response = await apiService.post<GeneralResponse>(url, null);
         if (!response?.success) throw new Error(response?.message);
+    }
+
+    public async addItemToMeeting(meetingItemId: number, meetingId: number): Promise<void> {
+        const apiService = await getAPIService();
+        const response = await apiService.post<GeneralResponse>(`/bc-features/founder-meetings/${meetingId}/meeting-items/${meetingItemId}`, null);
+        if (!response?.success) throw new Error(response?.message);
+    }
+
+    public async removeItemFromMeeting(meetingItemId: number, meetingId: number): Promise<void> {
+        const apiService = await getAPIService();
+        const response = await apiService.delete<GeneralResponse>(`/bc-features/founder-meetings/${meetingId}/meeting-items/${meetingItemId}`);
+        if (!response?.success) throw new Error(response?.message);
+    }
+
+    public async getAllActionItemsNotAssigned(): Promise<GetMeetingItemsResponse> {
+        const apiService = await getAPIService();
+        const response = await apiService.get<GetMeetingItemsResponse>(`/bc-features/meeting-items/not-assigned`);
+        if (!response) return { meetingItems: [] };
+        return response;
+    }
+
+    public async getAllOpenActionItems(): Promise<GetMeetingItemsResponse> {
+        const apiService = await getAPIService();
+        const response = await apiService.get<GetMeetingItemsResponse>(`/bc-features/meeting-items/open`);
+        if (!response) return { meetingItems: [] };
+        return response;
     }
 }
 
