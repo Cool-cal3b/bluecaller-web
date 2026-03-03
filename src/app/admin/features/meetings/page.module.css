@@ -66,11 +66,17 @@
   color: var(--color-blue-medium);
 }
 
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
 .sectionHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 0;
 }
 
 .sectionTitle {
@@ -181,6 +187,45 @@
   background-color: rgba(12, 18, 32, 0.9);
   border: 1px solid rgba(102, 153, 204, 0.08);
   border-radius: 12px;
+}
+
+.dateRangeRow {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.dateRangeField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dateRangeLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.4);
+}
+
+.dateRangeInput {
+  background-color: rgba(12, 18, 32, 0.9);
+  border: 1px solid rgba(102, 153, 204, 0.15);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #e2e8f0;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+  color-scheme: dark;
+  min-width: 160px;
+}
+
+.dateRangeInput:focus {
+  border-color: rgba(102, 153, 204, 0.4);
+  box-shadow: 0 0 20px rgba(102, 153, 204, 0.08);
 }
 
 .loadingState {

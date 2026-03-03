@@ -1,7 +1,7 @@
 "use client";
 
 import { MeetingService } from "@/services/page-services.ts/feature-services";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { BlueCallerMeeting } from "@/responses/feature-responses";
 import Link from "next/link";
 import styles from "./page.module.css";
@@ -18,6 +18,44 @@ function fromLocalDateInputValue(value: string): Date {
     return new Date(y, m - 1, d);
 }
 
+function startOfDay(d: Date): Date {
+    const copy = new Date(d);
+    copy.setHours(0, 0, 0, 0);
+    return copy;
+}
+
+function MeetingCard({ meeting }: { meeting: BlueCallerMeeting }) {
+    return (
+        <Link href={`/admin/features/meetings/${meeting.id}`} className={styles.meetingCard}>
+            <span className={styles.meetingCardDot} />
+            <div className={styles.meetingCardBody}>
+                <span className={styles.meetingCardDate}>
+                    {meeting.date.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+                </span>
+                <span className={styles.meetingCardMeta}>
+                    {meeting.meetingItems.length} item{meeting.meetingItems.length !== 1 ? "s" : ""}
+                </span>
+            </div>
+            <svg className={styles.meetingCardArrow} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+        </Link>
+    );
+}
+
+function MeetingList({ meetings, emptyMessage }: { meetings: BlueCallerMeeting[]; emptyMessage: string }) {
+    if (meetings.length === 0) {
+        return <p className={styles.emptyState}>{emptyMessage}</p>;
+    }
+    return (
+        <div className={styles.meetingList}>
+            {meetings.map((meeting) => (
+                <MeetingCard key={meeting.id} meeting={meeting} />
+            ))}
+        </div>
+    );
+}
+
 export default function MeetingsPage() {
     const [meetings, setMeetings] = useState<BlueCallerMeeting[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -27,12 +65,51 @@ export default function MeetingsPage() {
     const [refreshCounter, setRefreshCounter] = useState(0);
     const overlayRef = useRef<HTMLDivElement>(null);
 
+    const today = useMemo(() => startOfDay(new Date()), []);
+    const threeMonthsAgo = useMemo(() => {
+        const d = new Date(today);
+        d.setMonth(d.getMonth() - 3);
+        return d;
+    }, [today]);
+
+    const [rangeStart, setRangeStart] = useState<string>(toLocalDateInputValue(threeMonthsAgo));
+    const [rangeEnd, setRangeEnd] = useState<string>(toLocalDateInputValue(today));
+
     const meetingServiceRef = useRef<MeetingService>(new MeetingService());
 
     useEffect(() => {
         setIsLoading(true);
         meetingServiceRef.current.getMeetings().then(setMeetings).finally(() => setIsLoading(false));
     }, [refreshCounter]);
+
+    const upcomingMeetings = useMemo(() => {
+        return meetings
+            .filter((m) => startOfDay(m.date) >= today)
+            .sort((a, b) => a.date.getTime() - b.date.getTime());
+    }, [meetings, today]);
+
+    const lastThreeMonthsMeetings = useMemo(() => {
+        return meetings
+            .filter((m) => {
+                const d = startOfDay(m.date);
+                return d >= threeMonthsAgo && d < today;
+            })
+            .sort((a, b) => b.date.getTime() - a.date.getTime());
+    }, [meetings, threeMonthsAgo, today]);
+
+    const rangeStartDate = fromLocalDateInputValue(rangeStart);
+    const rangeEndDate = fromLocalDateInputValue(rangeEnd);
+    const rangeMeetings = useMemo(() => {
+        const start = startOfDay(rangeStartDate);
+        const end = startOfDay(rangeEndDate);
+        if (start > end) return [];
+        return meetings
+            .filter((m) => {
+                const d = startOfDay(m.date);
+                return d >= start && d <= end;
+            })
+            .sort((a, b) => b.date.getTime() - a.date.getTime());
+    }, [meetings, rangeStart, rangeEnd]);
 
     const openModal = () => {
         setNewMeetingDate(toLocalDateInputValue(new Date()));
@@ -78,9 +155,9 @@ export default function MeetingsPage() {
                 Back to Features
             </Link>
 
-            <div>
+            <div className={styles.section}>
                 <div className={styles.sectionHeader}>
-                    <span className={styles.sectionTitle}>All Meetings</span>
+                    <span className={styles.sectionTitle}>Upcoming Meetings</span>
                     <button className={styles.createButton} onClick={openModal}>
                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M6 1v10M1 6h10" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
@@ -95,27 +172,58 @@ export default function MeetingsPage() {
                         <div className={styles.loadingPulse} style={{ width: "85%" }} />
                         <div className={styles.loadingPulse} style={{ width: "70%" }} />
                     </div>
-                ) : meetings.length === 0 ? (
-                    <p className={styles.emptyState}>No meetings yet. Plan your first meeting above.</p>
                 ) : (
-                    <div className={styles.meetingList}>
-                        {meetings.map((meeting) => (
-                            <Link key={meeting.id} href={`/admin/features/meetings/${meeting.id}`} className={styles.meetingCard}>
-                                <span className={styles.meetingCardDot} />
-                                <div className={styles.meetingCardBody}>
-                                    <span className={styles.meetingCardDate}>
-                                        {meeting.date.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-                                    </span>
-                                    <span className={styles.meetingCardMeta}>
-                                        {meeting.meetingItems.length} item{meeting.meetingItems.length !== 1 ? "s" : ""}
-                                    </span>
-                                </div>
-                                <svg className={styles.meetingCardArrow} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            </Link>
-                        ))}
+                    <MeetingList meetings={upcomingMeetings} emptyMessage="No upcoming meetings. Plan one above." />
+                )}
+            </div>
+
+            <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                    <span className={styles.sectionTitle}>Last 3 Months</span>
+                </div>
+
+                {!isLoading && (
+                    <MeetingList meetings={lastThreeMonthsMeetings} emptyMessage="No meetings in the last 3 months." />
+                )}
+            </div>
+
+            <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                    <span className={styles.sectionTitle}>Search by Date Range</span>
+                </div>
+
+                <div className={styles.dateRangeRow}>
+                    <div className={styles.dateRangeField}>
+                        <label className={styles.dateRangeLabel} htmlFor="range-start">From</label>
+                        <input
+                            id="range-start"
+                            className={styles.dateRangeInput}
+                            type="date"
+                            value={rangeStart}
+                            onChange={(e) => setRangeStart(e.target.value)}
+                        />
                     </div>
+                    <div className={styles.dateRangeField}>
+                        <label className={styles.dateRangeLabel} htmlFor="range-end">To</label>
+                        <input
+                            id="range-end"
+                            className={styles.dateRangeInput}
+                            type="date"
+                            value={rangeEnd}
+                            onChange={(e) => setRangeEnd(e.target.value)}
+                        />
+                    </div>
+                </div>
+
+                {!isLoading && (
+                    <MeetingList
+                        meetings={rangeMeetings}
+                        emptyMessage={
+                            rangeStartDate > rangeEndDate
+                                ? "Select a valid date range (From must be before To)."
+                                : "No meetings in this date range."
+                        }
+                    />
                 )}
             </div>
 
