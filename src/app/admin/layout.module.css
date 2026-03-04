@@ -1,13 +1,13 @@
 /* ── Admin color tokens (dark override) ── */
 .layoutAdmin {
-  --admin-bg: #090e17;
+  --admin-bg: #1a2133;
   --admin-sidebar-bg: #0c1220;
   --admin-sidebar-border: rgba(102, 153, 204, 0.1);
   --admin-accent: #6699CC;
   --admin-accent-dim: rgba(102, 153, 204, 0.15);
   --admin-text-primary: #e2e8f0;
-  --admin-text-secondary: rgba(226, 232, 240, 0.5);
-  --admin-text-muted: rgba(226, 232, 240, 0.28);
+  --admin-text-secondary: rgba(226, 232, 240, 0.65);
+  --admin-text-muted: rgba(226, 232, 240, 0.4);
   --admin-glow: rgba(102, 153, 204, 0.12);
 
   display: flex;

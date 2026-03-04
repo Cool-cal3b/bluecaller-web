@@ -11,7 +11,7 @@
   flex-direction: column;
   gap: 8px;
   padding-bottom: 28px;
-  border-bottom: 1px solid rgba(102, 153, 204, 0.1);
+  border-bottom: 1px solid rgba(102, 153, 204, 0.18);
 }
 
 .eyebrow {
@@ -45,7 +45,7 @@
 .description {
   font-size: 14px;
   line-height: 1.7;
-  color: rgba(226, 232, 240, 0.5);
+  color: rgba(226, 232, 240, 0.65);
   margin: 0;
   max-width: 520px;
 }
@@ -55,7 +55,7 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(226, 232, 240, 0.35);
+  color: rgba(226, 232, 240, 0.5);
   margin-bottom: 14px;
 }
 
@@ -66,8 +66,8 @@
 }
 
 .toolCard {
-  background-color: rgba(12, 18, 32, 0.9);
-  border: 1px solid rgba(102, 153, 204, 0.12);
+  background-color: rgba(10, 16, 30, 0.7);
+  border: 1px solid rgba(102, 153, 204, 0.2);
   border-radius: 12px;
   padding: 22px 20px;
   display: flex;
@@ -76,12 +76,13 @@
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
   text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .toolCard:hover {
-  border-color: rgba(102, 153, 204, 0.35);
-  background-color: rgba(102, 153, 204, 0.06);
-  box-shadow: 0 0 20px rgba(102, 153, 204, 0.08);
+  border-color: rgba(102, 153, 204, 0.45);
+  background-color: rgba(102, 153, 204, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 16px rgba(102, 153, 204, 0.1);
 }
 
 .toolCardIcon {
@@ -115,7 +116,7 @@
 
 .toolCardDesc {
   font-size: 12.5px;
-  color: rgba(226, 232, 240, 0.45);
+  color: rgba(226, 232, 240, 0.6);
   line-height: 1.5;
 }
 

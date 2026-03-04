@@ -168,34 +168,41 @@ export default function ActionItemPage() {
                     </div>
 
                     <div className={styles.formFooter}>
-                        <button
-                            className={`${styles.toggleButton} ${actionItem.isCompleted ? styles.toggleButtonUndo : styles.toggleButtonComplete}`}
-                            onClick={handleToggleComplete}
-                            disabled={isTogglingComplete}
-                        >
-                            {actionItem.isCompleted ? (
-                                <>
-                                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                                        <path d="M2 6.5h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                                    </svg>
-                                    Mark as Open
-                                </>
-                            ) : (
-                                <>
-                                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                                        <path d="M2 7l3 3 6-6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                    Mark as Done
-                                </>
-                            )}
-                        </button>
-
-                        <button className={styles.deleteButton} onClick={() => setShowDeleteConfirm(true)}>
-                            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                                <path d="M2 3.5h9M5 3.5V2.5h3v1M5.5 6v4M7.5 6v4M3.5 3.5l.5 7h5l.5-7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                            Delete
-                        </button>
+                        <div className={styles.formFooterInfo}>
+                            <span className={styles.formFooterLabel}>Actions</span>
+                            <span className={styles.formFooterHint}>
+                                {actionItem.isCompleted ? "This item is marked as done." : "This item is currently open."}
+                            </span>
+                        </div>
+                        <div className={styles.formFooterActions}>
+                            <button className={styles.deleteButton} onClick={() => setShowDeleteConfirm(true)}>
+                                <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                                    <path d="M2 3.5h9M5 3.5V2.5h3v1M5.5 6v4M7.5 6v4M3.5 3.5l.5 7h5l.5-7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                                Delete
+                            </button>
+                            <button
+                                className={`${styles.toggleButton} ${actionItem.isCompleted ? styles.toggleButtonUndo : styles.toggleButtonComplete}`}
+                                onClick={handleToggleComplete}
+                                disabled={isTogglingComplete}
+                            >
+                                {actionItem.isCompleted ? (
+                                    <>
+                                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                                            <path d="M2 6.5h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                                        </svg>
+                                        Mark as Open
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                                            <path d="M2 7l3 3 6-6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                        Mark as Done
+                                    </>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
