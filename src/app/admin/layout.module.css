@@ -11,7 +11,7 @@
   --admin-glow: rgba(102, 153, 204, 0.12);
 
   display: flex;
-  min-height: 100vh;
+  min-height: 100svh;
   background-color: var(--admin-bg);
   font-family: var(--font-geist-sans);
 }
@@ -185,7 +185,7 @@
   margin-left: 240px;
   flex: 1;
   padding: 40px 48px;
-  min-height: 100vh;
+  min-height: 100svh;
 }
 
 .menuToggle {
@@ -274,16 +274,17 @@
     pointer-events: all;
   }
 
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 280px;
-    height: 100vh;
-    z-index: 300;
-    transform: translateX(-100%);
-    transition: transform 0.25s ease;
-  }
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100svh;
+  z-index: 300;
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+  overflow-y: auto;
+}
 
   .sidebarOpen {
     transform: translateX(0);
@@ -301,5 +302,6 @@
   .pageContent {
     margin-left: 0;
     padding: 24px 16px;
+    min-height: unset;
   }
 }

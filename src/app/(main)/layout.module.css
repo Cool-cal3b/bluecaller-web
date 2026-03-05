@@ -1,6 +1,6 @@
 .layout {
   display: flex;
-  min-height: 100vh;
+  min-height: 100svh;
   background-color: var(--color-gray-lightest);
   font-family: var(--font-geist-sans);
 }
@@ -163,7 +163,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 100svh;
 }
 
 .menuToggle {
@@ -243,17 +243,18 @@
     pointer-events: all;
   }
 
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 280px;
-    height: 100vh;
-    z-index: 300;
-    transform: translateX(-100%);
-    transition: transform 0.25s ease;
-    box-shadow: 4px 0 20px rgba(0, 59, 109, 0.3);
-  }
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100svh;
+  z-index: 300;
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+  box-shadow: 4px 0 20px rgba(0, 59, 109, 0.3);
+  overflow-y: auto;
+}
 
   .sidebarOpen {
     transform: translateX(0);
@@ -267,5 +268,6 @@
   .pageContent {
     margin-left: 0;
     padding: 24px 16px;
+    min-height: unset;
   }
 }
