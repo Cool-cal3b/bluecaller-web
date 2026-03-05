@@ -45,6 +45,7 @@ export default function MeetingPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [editFeatureSearch, setEditFeatureSearch] = useState("");
     const [editFeaturePickerOpen, setEditFeaturePickerOpen] = useState(false);
+    const editFeaturePickerRef = useRef<HTMLDivElement>(null);
     const viewOverlayRef = useRef<HTMLDivElement>(null);
 
     // Add modal (the + button)
@@ -57,6 +58,7 @@ export default function MeetingPage() {
     const [newItemFeatureId, setNewItemFeatureId] = useState<number | null>(null);
     const [newFeatureSearch, setNewFeatureSearch] = useState("");
     const [newFeaturePickerOpen, setNewFeaturePickerOpen] = useState(false);
+    const newFeaturePickerRef = useRef<HTMLDivElement>(null);
     const [isCreating, setIsCreating] = useState(false);
     const [openItems, setOpenItems] = useState<GetMeetingItemResponse[]>([]);
     const [openItemsToShow, setOpenItemsToShow] = useState<GetMeetingItemResponse[]>([]);
@@ -66,6 +68,21 @@ export default function MeetingPage() {
     useEffect(() => {
         featureServiceRef.current.getFeatures().then(setAllFeatures);
     }, []);
+
+    useEffect(() => {
+        if (!editFeaturePickerOpen && !newFeaturePickerOpen) return;
+        const handleClickOutside = (e: MouseEvent) => {
+            const target = e.target as Node;
+            if (editFeaturePickerOpen && editFeaturePickerRef.current && !editFeaturePickerRef.current.contains(target)) {
+                setEditFeaturePickerOpen(false);
+            }
+            if (newFeaturePickerOpen && newFeaturePickerRef.current && !newFeaturePickerRef.current.contains(target)) {
+                setNewFeaturePickerOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [editFeaturePickerOpen, newFeaturePickerOpen]);
 
     useEffect(() => {
         const id = getMeetingId();
@@ -442,7 +459,7 @@ export default function MeetingPage() {
                                                 </button>
                                             </div>
                                         ) : (
-                                            <div className={styles.featurePicker}>
+                                            <div className={styles.featurePicker} ref={editFeaturePickerRef}>
                                                 <input
                                                     className={styles.modalInput}
                                                     type="text"
@@ -640,7 +657,7 @@ export default function MeetingPage() {
                                                 </button>
                                             </div>
                                         ) : (
-                                            <div className={styles.featurePicker}>
+                                            <div className={styles.featurePicker} ref={newFeaturePickerRef}>
                                                 <input
                                                     className={styles.modalInput}
                                                     type="text"
