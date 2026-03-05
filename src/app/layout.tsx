@@ -16,6 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "BlueCaller",
   description: "Manage your contractor business with ease",
+  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function RootLayout({

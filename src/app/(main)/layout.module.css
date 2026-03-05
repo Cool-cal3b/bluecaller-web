@@ -166,32 +166,102 @@
   min-height: 100vh;
 }
 
+.menuToggle {
+  display: none;
+}
+
+.overlay {
+  display: none;
+}
+
 @media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .menuToggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background-color: var(--color-blue-deep);
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    box-shadow: 0 2px 8px rgba(0, 59, 109, 0.25);
+  }
+
+  .menuToggleBrand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .menuToggleBrandName {
+    font-size: 17px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.02em;
+  }
+
+  .menuToggleBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.85);
+    transition: background-color 0.15s;
+  }
+
+  .menuToggleBtn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .menuToggleBtn svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+  }
+
+  .overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.45);
+    z-index: 299;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+
+  .overlayVisible {
+    opacity: 1;
+    pointer-events: all;
+  }
+
   .sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
-    flex-direction: row;
-    flex-wrap: wrap;
-    box-shadow: 0 2px 12px rgba(0, 59, 109, 0.18);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 300;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 20px rgba(0, 59, 109, 0.3);
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
   }
 
   .sidebarHeader {
-    padding: 16px 20px;
-    border-bottom: none;
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  .nav {
-    flex-direction: row;
-    padding: 10px 12px;
-    flex: 1;
-  }
-
-  .sidebarFooter {
-    padding: 10px 12px;
-    border-top: none;
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .pageContent {

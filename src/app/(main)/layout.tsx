@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import styles from "./layout.module.css";
 import { UserInfoProvider, useUserInfo } from "@/context/user-info-context";
 
 function MainLayoutInner({ children }: { children: React.ReactNode }) {
   const { userInfo } = useUserInfo();
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const getInitials = () => {
     if (!userInfo?.firstName) return null;
@@ -22,9 +24,32 @@ function MainLayoutInner({ children }: { children: React.ReactNode }) {
 
   const initials = getInitials();
 
+  const closeMenu = () => setMenuOpen(false);
+
   return (
     <div className={styles.layout}>
-      <aside className={styles.sidebar}>
+      <div className={styles.menuToggle}>
+        <div className={styles.menuToggleBrand}>
+          <div className={styles.logoMark}>
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.47 11.47 0 003.58.57 1 1 0 011 1V21a1 1 0 01-1 1A17 17 0 013 5a1 1 0 011-1h3.5a1 1 0 011 1 11.47 11.47 0 00.57 3.58 1 1 0 01-.25 1.01l-2.2 2.2z" />
+            </svg>
+          </div>
+          <span className={styles.menuToggleBrandName}>BlueCaller</span>
+        </div>
+        <button className={styles.menuToggleBtn} onClick={() => setMenuOpen(true)} aria-label="Open menu">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+          </svg>
+        </button>
+      </div>
+
+      <div
+        className={`${styles.overlay}${menuOpen ? ` ${styles.overlayVisible}` : ""}`}
+        onClick={closeMenu}
+      />
+
+      <aside className={`${styles.sidebar}${menuOpen ? ` ${styles.sidebarOpen}` : ""}`}>
         <div className={styles.sidebarHeader}>
           <div className={styles.logoMark}>
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -35,14 +60,14 @@ function MainLayoutInner({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className={styles.nav}>
-          <Link href="/" className={`${styles.navLink}${pathname === "/" ? ` ${styles.navLinkActive}` : ""}`}>
+          <Link href="/" onClick={closeMenu} className={`${styles.navLink}${pathname === "/" ? ` ${styles.navLinkActive}` : ""}`}>
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
             </svg>
             Home
           </Link>
           {userInfo?.isAdmin && (
-            <Link href="/admin" className={`${styles.navLink}${pathname.startsWith("/admin") ? ` ${styles.navLinkActive}` : ""}`}>
+            <Link href="/admin" onClick={closeMenu} className={`${styles.navLink}${pathname.startsWith("/admin") ? ` ${styles.navLinkActive}` : ""}`}>
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 2a5 5 0 100 10A5 5 0 0012 2zm0 12c-5.33 0-8 2.67-8 4v2h16v-2c0-1.33-2.67-4-8-4z" />
               </svg>
@@ -52,7 +77,7 @@ function MainLayoutInner({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className={styles.sidebarFooter}>
-          <Link href="/profile" className={`${styles.profileLink}${pathname.startsWith("/profile") ? ` ${styles.profileLinkActive}` : ""}`}>
+          <Link href="/profile" onClick={closeMenu} className={`${styles.profileLink}${pathname.startsWith("/profile") ? ` ${styles.profileLinkActive}` : ""}`}>
             {initials ? (
               <div className={styles.avatar}>{initials}</div>
             ) : (
