@@ -319,8 +319,11 @@ export default function MeetingPage() {
                         onClick={() => setShowDeleteConfirm(true)}
                         title="Delete meeting"
                     >
-                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                            <path d="M2 3.5h9M5 3.5V2.5h3v1M4.5 3.5v6.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5V3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                            <path d="M10 11v6M14 11v6" />
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
                         </svg>
                         Delete
                     </button>
