@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import BlueCallerIcon from "@/app/assets/BlueCallerIcon.png";
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -9,8 +11,11 @@ export default function Home() {
         In Development
       </div>
 
+      <div className={styles.mainLogo}>
+        <Image src={BlueCallerIcon} alt="BlueCaller" width={220} height={60} />
+      </div>
+
       <div className={styles.heading}>
-        <h1>Welcome to BlueCaller</h1>
         <p>
           Online tools for BlueCaller are on the way. For now, this portal is
           available for administrators.
