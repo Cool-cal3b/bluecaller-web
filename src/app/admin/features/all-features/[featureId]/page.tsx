@@ -238,7 +238,7 @@ export default function FeaturePage() {
                         ) : (
                             <div className={styles.itemList}>
                                 {actionItems.map((item) => (
-                                    <Link key={item.id} href={`/admin/features/all-action-items/${item.id}`} className={styles.item}>
+                                    <Link key={item.id} href={`/admin/features/all-action-items/${item.id}`} className={`${styles.item} ${item.isCompleted ? styles.itemCompleted : ""}`}>
                                         <span className={styles.itemDot} />
                                         <div className={styles.itemBody}>
                                             <span className={styles.itemName}>{item.itemName}</span>

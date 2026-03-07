@@ -266,6 +266,27 @@
   border-bottom: none;
 }
 
+.itemCompleted {
+  background-color: rgba(6, 10, 22, 0.3);
+}
+
+.itemCompleted .itemDot {
+  background-color: #4ade80;
+  box-shadow: 0 0 5px rgba(74, 222, 128, 0.5);
+}
+
+.itemCompleted .itemName {
+  text-decoration: line-through;
+  text-decoration-color: rgba(226, 232, 240, 0.35);
+  color: rgba(226, 232, 240, 0.45);
+}
+
+.itemCompleted .itemText {
+  text-decoration: line-through;
+  text-decoration-color: rgba(226, 232, 240, 0.2);
+  color: rgba(226, 232, 240, 0.25);
+}
+
 .itemDot {
   flex-shrink: 0;
   width: 6px;
