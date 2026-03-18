@@ -2,10 +2,65 @@
 
 import { MeetingService, FeatureService } from "@/services/page-services.ts/feature-services";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Feature, GetMeetingItemResponse, MeetingItemType } from "@/responses/feature-responses";
 import styles from "./page.module.css";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+
+interface FeaturePickerDropdownProps {
+    anchorRef: React.RefObject<HTMLDivElement | null>;
+    features: Feature[];
+    search: string;
+    onSelect: (feature: Feature) => void;
+}
+
+function FeaturePickerDropdown({ anchorRef, features, search, onSelect }: FeaturePickerDropdownProps) {
+    const [style, setStyle] = useState<React.CSSProperties>({ visibility: "hidden" });
+
+    useEffect(() => {
+        const anchor = anchorRef.current;
+        if (!anchor) return;
+
+        const rect = anchor.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom - 8;
+        const maxHeight = Math.min(240, Math.max(80, spaceBelow));
+
+        setStyle({
+            position: "fixed",
+            top: rect.bottom + 4,
+            left: rect.left,
+            width: rect.width,
+            maxHeight,
+            zIndex: 9999,
+        });
+    }, [anchorRef]);
+
+    const filtered = features.filter((f) =>
+        f.name.toLowerCase().includes(search.toLowerCase())
+    );
+
+    return createPortal(
+        <div className={styles.featureDropdown} style={style}>
+            {filtered.map((f) => (
+                <button
+                    key={f.id}
+                    className={styles.featureDropdownItem}
+                    onMouseDown={(e) => {
+                        e.preventDefault();
+                        onSelect(f);
+                    }}
+                >
+                    {f.name}
+                </button>
+            ))}
+            {filtered.length === 0 && (
+                <p className={styles.featureDropdownEmpty}>No features found.</p>
+            )}
+        </div>,
+        document.body
+    );
+}
 
 function toLocalDateInputValue(date: Date): string {
     const y = date.getFullYear();
@@ -472,27 +527,16 @@ export default function MeetingPage() {
                                                     onFocus={() => setEditFeaturePickerOpen(true)}
                                                 />
                                                 {editFeaturePickerOpen && (
-                                                    <div className={styles.featureDropdown}>
-                                                        {allFeatures
-                                                            .filter((f) => f.name.toLowerCase().includes(editFeatureSearch.toLowerCase()))
-                                                            .slice(0, 10)
-                                                            .map((f) => (
-                                                                <button
-                                                                    key={f.id}
-                                                                    className={styles.featureDropdownItem}
-                                                                    onClick={() => {
-                                                                        setModalItem({ ...modalItem, featureId: f.id });
-                                                                        setEditFeatureSearch("");
-                                                                        setEditFeaturePickerOpen(false);
-                                                                    }}
-                                                                >
-                                                                    {f.name}
-                                                                </button>
-                                                            ))}
-                                                        {allFeatures.filter((f) => f.name.toLowerCase().includes(editFeatureSearch.toLowerCase())).length === 0 && (
-                                                            <p className={styles.featureDropdownEmpty}>No features found.</p>
-                                                        )}
-                                                    </div>
+                                                    <FeaturePickerDropdown
+                                                        anchorRef={editFeaturePickerRef}
+                                                        features={allFeatures}
+                                                        search={editFeatureSearch}
+                                                        onSelect={(f) => {
+                                                            setModalItem({ ...modalItem, featureId: f.id });
+                                                            setEditFeatureSearch("");
+                                                            setEditFeaturePickerOpen(false);
+                                                        }}
+                                                    />
                                                 )}
                                             </div>
                                         )}
@@ -670,27 +714,16 @@ export default function MeetingPage() {
                                                     onFocus={() => setNewFeaturePickerOpen(true)}
                                                 />
                                                 {newFeaturePickerOpen && (
-                                                    <div className={styles.featureDropdown}>
-                                                        {allFeatures
-                                                            .filter((f) => f.name.toLowerCase().includes(newFeatureSearch.toLowerCase()))
-                                                            .slice(0, 10)
-                                                            .map((f) => (
-                                                                <button
-                                                                    key={f.id}
-                                                                    className={styles.featureDropdownItem}
-                                                                    onClick={() => {
-                                                                        setNewItemFeatureId(f.id);
-                                                                        setNewFeatureSearch("");
-                                                                        setNewFeaturePickerOpen(false);
-                                                                    }}
-                                                                >
-                                                                    {f.name}
-                                                                </button>
-                                                            ))}
-                                                        {allFeatures.filter((f) => f.name.toLowerCase().includes(newFeatureSearch.toLowerCase())).length === 0 && (
-                                                            <p className={styles.featureDropdownEmpty}>No features found.</p>
-                                                        )}
-                                                    </div>
+                                                    <FeaturePickerDropdown
+                                                        anchorRef={newFeaturePickerRef}
+                                                        features={allFeatures}
+                                                        search={newFeatureSearch}
+                                                        onSelect={(f) => {
+                                                            setNewItemFeatureId(f.id);
+                                                            setNewFeatureSearch("");
+                                                            setNewFeaturePickerOpen(false);
+                                                        }}
+                                                    />
                                                 )}
                                             </div>
                                         )}
