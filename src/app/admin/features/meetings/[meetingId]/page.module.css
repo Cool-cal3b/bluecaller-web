@@ -477,6 +477,22 @@
   overflow-wrap: break-word;
 }
 
+.modalViewText a {
+  color: #60a5fa;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-all;
+}
+
+.modalViewText a:hover {
+  color: #93c5fd;
+}
+
+.modalViewText strong {
+  color: rgba(226, 232, 240, 0.9);
+  font-weight: 600;
+}
+
 .modalViewTextEmpty {
   font-size: 13px;
   color: rgba(226, 232, 240, 0.42);

@@ -15,6 +15,20 @@ interface FeaturePickerDropdownProps {
     onSelect: (feature: Feature) => void;
 }
 
+function toLocalDateInputValue(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+}
+
+function fromLocalDateInputValue(value: string): Date {
+    const [y, m, d] = value.split("-").map(Number);
+    return new Date(y, m - 1, d);
+}
+
+type ModalItem = Omit<GetMeetingItemResponse, "id"> & { id: number | null };
+
 function FeaturePickerDropdown({ anchorRef, features, search, onSelect }: FeaturePickerDropdownProps) {
     const [style, setStyle] = useState<React.CSSProperties>({ visibility: "hidden" });
 
@@ -61,20 +75,6 @@ function FeaturePickerDropdown({ anchorRef, features, search, onSelect }: Featur
         document.body
     );
 }
-
-function toLocalDateInputValue(date: Date): string {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, "0");
-    const d = String(date.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}`;
-}
-
-function fromLocalDateInputValue(value: string): Date {
-    const [y, m, d] = value.split("-").map(Number);
-    return new Date(y, m - 1, d);
-}
-
-type ModalItem = Omit<GetMeetingItemResponse, "id"> & { id: number | null };
 
 export default function MeetingPage() {
     const params: { meetingId: string } = useParams();
@@ -277,6 +277,33 @@ export default function MeetingPage() {
         await meetingServiceRef.current.addItemToMeeting(itemId, getMeetingId());
         closeAddModal();
         setRefreshCounter((c) => c + 1);
+    };
+
+    const parseMeetingItemDescription = (description: string): MeetingDescriptionPart[] => {
+        const parts: MeetingDescriptionPart[] = [];
+        const tokenRegex = /\*\*(.+?)\*\*|\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/\S+)/g;
+        let lastIndex = 0;
+        let match: RegExpExecArray | null;
+
+        while ((match = tokenRegex.exec(description)) !== null) {
+            if (match.index > lastIndex) {
+                parts.push({ text: description.slice(lastIndex, match.index), isBold: false, isLink: false, href: undefined });
+            }
+            if (match[1] !== undefined) {
+                parts.push({ text: match[1], isBold: true, isLink: false, href: undefined });
+            } else if (match[2] !== undefined) {
+                parts.push({ text: match[2], isBold: false, isLink: true, href: match[3] });
+            } else if (match[4] !== undefined) {
+                parts.push({ text: match[4], isBold: false, isLink: true, href: match[4] });
+            }
+            lastIndex = tokenRegex.lastIndex;
+        }
+
+        if (lastIndex < description.length) {
+            parts.push({ text: description.slice(lastIndex), isBold: false, isLink: false, href: undefined });
+        }
+
+        return parts;
     };
 
     const handleCreateNewItem = async () => {
@@ -570,7 +597,11 @@ export default function MeetingPage() {
                                 <div className={styles.modalViewBody}>
                                     <h3 className={styles.modalViewName}>{modalItem.itemName}</h3>
                                     {modalItem.itemText ? (
-                                        <p className={styles.modalViewText}>{modalItem.itemText}</p>
+                                        <p className={styles.modalViewText}>{parseMeetingItemDescription(modalItem.itemText).map((part, i) => (
+                                            part.isBold ? <strong key={i}>{part.text}</strong> :
+                                            part.isLink ? <a key={i} href={part.href} target="_blank" rel="noopener noreferrer">{part.text}</a> :
+                                            <span key={i}>{part.text}</span>
+                                        ))}</p>
                                     ) : (
                                         <p className={styles.modalViewTextEmpty}>No description.</p>
                                     )}
@@ -785,4 +816,11 @@ export default function MeetingPage() {
             )}
         </div>
     );
+}
+
+interface MeetingDescriptionPart {
+    text: string;
+    isBold: boolean;
+    isLink: boolean;
+    href: string | undefined;
 }
